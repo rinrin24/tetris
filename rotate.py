@@ -1,106 +1,65 @@
-def rotate_right(current_shape):
-    new_shape = [
-        [' ', ' ', ' '],
-        [' ', 'x', ' '],
-        [' ', '', ' ']
-    ]
-    for i in range(3):
-        if current_shape[0][i] == 'o':
-            new_shape[i][2] = 'o'
-    if current_shape[1][0] == 'o':
-        new_shape[0][1] = 'o'
-    if current_shape[1][2] == 'o':
-        new_shape[2][1] = 'o'
-    for i in range(3):
-        if current_shape[2][i] == 'o':
-            new_shape[i][0] = 'o'
-    return new_shape
+from abc import abstractmethod, ABCMeta
+from typing import Self
 
-def rotate_left(current_shape):
-    new_shape = [
-        [' ', ' ', ' '],
-        [' ', 'x', ' '],
-        [' ', ' ', ' ']
-    ]
-    for i in range(3):
-        if current_shape[0][i] == 'o':
-            new_shape[2-i][0] = 'o'
-    if current_shape[1][0] == 'o':
-        new_shape[2][1] = 'o'
-    if current_shape[1][2] == 'o':
-        new_shape[0][1] = 'o'
-    for i in range(3):
-        if current_shape[2][i] == 'o':
-            new_shape[2-i][2] = 'o'
-    return new_shape
+class Mino(metaclass=ABCMeta):
+    @abstractmethod
+    def rotate_right(self) -> None:
+        raise NotImplementedError()
+    def rotate_left(self) -> None:
+        raise NotImplementedError()
 
-def rotate4_right(current_shape) -> None:
-    new_shape = [
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ']
-    ]
-    for i in range(4):
-        for j in range(4):
-            if current_shape[j][i] == 'o':
-                new_shape[i][3-j] = 'o'
-    current_shape = new_shape
-    return new_shape
+class Block:
+    @classmethod
+    def make_empty(cls) -> Self:
+        return cls(None)
+    def __init__(self, block_type: int) -> None:
+        self._block_type: int = block_type
+    def is_empty(self) -> bool:
+        return self._block_type is None   
 
-def rotate4_left(current_shape) -> None:
-    new_shape = [
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ']
-    ]
-    for i in range(4):
-        for j in range(4):
-            if current_shape[j][i] == 'o':
-                new_shape[3-i][j] = 'o'
-    current_shape = new_shape
-    return new_shape
-        
-def print_shape(current_shape):
-    for row in current_shape:
-        print(row)
+class Grid:
+    @classmethod
+    def from_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
+        new_grid: Grid = cls(len(new_list[0]), len(new_list))
+        for i, column in enumerate(new_list):
+            for j, block in enumerate(column):
+                if not block == '':
+                    new_grid.add_block(j, i, block_type)
+        return new_grid
+    def __init__(self, size_x: int, size_y: int) -> None:
+        self.size_x: int = size_x
+        self.size_y: int = size_y
+        self.grid = [[ Block(None) for i in range(size_x)] for j in range(size_y)]
+    def add_block(self, position_x: int, position_y: int, block: Block):
+        self.grid[position_y][position_x] = block
+        return
 
-shape = [
-    [' ', 'o', 'o'],
-    ['o', 'x', ' '],
-    [' ', ' ', ' ']
-]
-print_shape(shape)
-print_shape(rotate_right(shape))
-print_shape(rotate_right(rotate_right(shape)))
-print_shape(rotate_right(rotate_right(rotate_right(shape))))
-print_shape(rotate_right(rotate_right(rotate_right(rotate_right(shape)))))
-
-print('------')
-
-print_shape(shape)
-print_shape(rotate_left(shape))
-print_shape(rotate_left(rotate_left(shape)))
-print_shape(rotate_left(rotate_left(rotate_left(shape))))
-print_shape(rotate_left(rotate_left(rotate_left(rotate_left(shape)))))
-
-shape = [
-    [' ', ' ', ' ', ' '],
-    ['o', 'o', 'o', 'o'],
-    [' ', ' ', ' ', ' '],
-    [' ', ' ', ' ', ' ']
-]
-
-print_shape(shape)
-print_shape(rotate4_right(shape))
-print_shape(rotate4_right(rotate4_right(shape)))
-print_shape(rotate4_right(rotate4_right(rotate4_right(shape))))
-print_shape(rotate4_right(rotate4_right(rotate4_right(rotate4_right(shape)))))
-
-print('----')
-print_shape(shape)
-print_shape(rotate4_left(shape))
-print_shape(rotate4_left(rotate4_left(shape)))
-print_shape(rotate4_left(rotate4_left(rotate4_left(shape))))
-print_shape(rotate4_left(rotate4_left(rotate4_left(rotate4_left(shape)))))
+class IMino(Mino):
+    BLOCK_TYPE: Block = Block(1)
+    SHAPE = Grid.from_list([
+        ['', '', '', ''],
+        ['o', 'o', 'o', 'o'],
+        ['', '', '', ''],
+        ['', '', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: Grid = IMino.SHAPE
+    def rotate_right(self) -> None:
+        new_shape = Grid(4, 4)
+        for i in range(4):
+            for j in range(4):
+                if self.current_shape[j][i] == 'o':
+                    new_shape[i][3-j] = 'o'
+        self.current_shape = new_shape
+    def rotate_left(self) -> None:
+        new_shape = [
+            ['', '', '', ''],
+            ['', '', '', ''],
+            ['', '', '', ''],
+            ['', '', '', '']
+        ]
+        for i in range(4):
+            for j in range(4):
+                if self.current_shape[j][i] == 'o':
+                    new_shape[3-i][j] = 'o'
+        self.current_shape = new_shape

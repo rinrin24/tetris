@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABCMeta
+from typing import Self
 
 class Mino(metaclass=ABCMeta):
     @abstractmethod
@@ -7,6 +8,32 @@ class Mino(metaclass=ABCMeta):
     def rotate_left(self) -> None:
         raise NotImplementedError()
 
+class Block:
+    @classmethod
+    def make_empty(cls) -> Self:
+        return cls(None)
+    def __init__(self, block_type: int) -> None:
+        self._block_type: int = block_type
+    def is_empty(self) -> bool:
+        return self._block_type is None   
+
+class Grid:
+    @classmethod
+    def from_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
+        new_grid: Grid = cls(len(new_list[0]), len(new_list))
+        for i, column in enumerate(new_list):
+            for j, block in enumerate(column):
+                if not block == '':
+                    new_grid.add_block(j, i, block_type)
+        return new_grid
+    def __init__(self, size_x: int, size_y: int) -> None:
+        self.size_x: int = size_x
+        self.size_y: int = size_y
+        self.grid = [[ Block(None) for i in range(size_x)] for j in range(size_y)]
+    def add_block(self, position_x: int, position_y: int, block: Block) -> None:
+        self.grid[position_y][position_x] = block
+    def is_empty(self, position_x: int, position_y: int):
+        return
 class Mino3x3:
     def rotate_right(self, current_shape: list[list[str]]) -> list[list[str]]:
         new_shape = [
@@ -43,97 +70,16 @@ class Mino3x3:
                 new_shape[2-i][2] = 'o'
         return new_shape
 
-class SMino(Mino):
-    SHAPE = [
-        ['', 'o', 'o'],
-        ['o', 'x', ''],
-        ['', '', '']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
-        self.mino3x3: Mino3x3 = Mino3x3()
-    def rotate_right(self) -> None:
-        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
-    def rotate_left(self) -> None:
-        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
-
-class ZMino(Mino):
-    SHAPE = [
-        ['o', 'o', ''],
-        ['', 'x', 'o'],
-        ['', '', '']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
-        self.mino3x3: Mino3x3 = Mino3x3()
-    def rotate_right(self) -> None:
-        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
-    def rotate_left(self) -> None:
-        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
-
-class JMino(Mino):
-    SHAPE = [
-        ['o', '', ''],
-        ['o', 'x', 'o'],
-        ['', '', '']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
-        self.mino3x3: Mino3x3 = Mino3x3()
-    def rotate_right(self) -> None:
-        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
-    def rotate_left(self) -> None:
-        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
-
-class LMino(Mino):
-    SHAPE = [
-        ['', '', 'o'],
-        ['o', 'x', 'o'],
-        ['', '', '']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
-        self.mino3x3: Mino3x3 = Mino3x3()
-    def rotate_right(self) -> None:
-        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
-    def rotate_left(self) -> None:
-        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
-
-class TMino(Mino):
-    SHAPE = [
-        ['', 'o', ''],
-        ['o', 'x', 'o'],
-        ['', '', '']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
-        self.mino3x3: Mino3x3 = Mino3x3()
-    def rotate_right(self) -> None:
-        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
-    def rotate_left(self) -> None:
-        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
-
-class OMino(Mino):
-    SHAPE = [
-        ['o', 'o'],
-        ['o', 'o']
-    ]
-    def __init__(self) -> None:
-        self.current_shape: list[list[str]] = OMino.SHAPE
-    def rotate_right(self) -> None:
-        return
-    def rotate_left(self) -> None:
-        return
-
 class IMino(Mino):
-    SHAPE = [
+    BLOCK_TYPE: Block = Block(1)
+    SHAPE = Grid.from_list([
         ['', '', '', ''],
         ['o', 'o', 'o', 'o'],
         ['', '', '', ''],
         ['', '', '', '']
-    ]
+    ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape = IMino.SHAPE
+        self.current_shape: Grid = IMino.SHAPE
     def rotate_right(self) -> None:
         new_shape = [
             ['', '', '', ''],
@@ -158,6 +104,94 @@ class IMino(Mino):
                 if self.current_shape[j][i] == 'o':
                     new_shape[3-i][j] = 'o'
         self.current_shape = new_shape
+
+class OMino(Mino):
+    BLOCK_TYPE: Block = Block(2)
+    SHAPE = Grid.from_list([
+        ['o', 'o'],
+        ['o', 'o']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = OMino.SHAPE
+    def rotate_right(self) -> None:
+        return
+    def rotate_left(self) -> None:
+        return
+
+class SMino(Mino):
+    BLOCK_TYPE: Block = Block(3)
+    SHAPE = Grid.from_list([
+        ['', 'o', 'o'],
+        ['o', 'x', ''],
+        ['', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.mino3x3: Mino3x3 = Mino3x3()
+    def rotate_right(self) -> None:
+        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
+    def rotate_left(self) -> None:
+        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
+
+class ZMino(Mino):
+    BLOCK_TYPE = Block(4)
+    SHAPE = Grid.from_list([
+        ['o', 'o', ''],
+        ['', 'x', 'o'],
+        ['', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.mino3x3: Mino3x3 = Mino3x3()
+    def rotate_right(self) -> None:
+        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
+    def rotate_left(self) -> None:
+        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
+
+class JMino(Mino):
+    BLOCK_TYPE: Block = Block(5)
+    SHAPE = Grid.from_list([
+        ['o', '', ''],
+        ['o', 'x', 'o'],
+        ['', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.mino3x3: Mino3x3 = Mino3x3()
+    def rotate_right(self) -> None:
+        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
+    def rotate_left(self) -> None:
+        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
+
+class LMino(Mino):
+    BLOCK_TYPE: Block = Block(6)
+    SHAPE = Grid.from_list([
+        ['', '', 'o'],
+        ['o', 'x', 'o'],
+        ['', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.mino3x3: Mino3x3 = Mino3x3()
+    def rotate_right(self) -> None:
+        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
+    def rotate_left(self) -> None:
+        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
+
+class TMino(Mino):
+    BLOCK_TYPE: Block = Block(7)
+    SHAPE = Grid.from_list([
+        ['', 'o', ''],
+        ['o', 'x', 'o'],
+        ['', '', '']
+    ], BLOCK_TYPE)
+    def __init__(self) -> None:
+        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.mino3x3: Mino3x3 = Mino3x3()
+    def rotate_right(self) -> None:
+        self.current_shape = self.mino3x3.rotate_right(self.current_shape)
+    def rotate_left(self) -> None:
+        self.current_shape = self.mino3x3.rotate_left(self.current_shape)
 
 class Position:
     """shows the position of each mino
