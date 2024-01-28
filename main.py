@@ -252,5 +252,7 @@ class MinoPile:
 
 class Tetris:
     INITIAL_POSITION: Position = Position(4, 19)
+    FIELD_SIZE_X: int = 10
+    FIELD_SIZE_Y: int = 20
     def __init__(self) -> None:
         pass
