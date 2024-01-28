@@ -106,7 +106,7 @@ class OMino(Mino):
         ['o', 'o']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = OMino.SHAPE
+        self.current_shape: Grid = OMino.SHAPE
     def rotate_right(self) -> None:
         return
     def rotate_left(self) -> None:
@@ -120,7 +120,7 @@ class SMino(Mino):
         ['', '', '']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = SMino.SHAPE
+        self.current_shape: Grid = SMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
     def rotate_right(self) -> None:
         self.current_shape = self.mino3x3.rotate_right(self.current_shape, SMino.BLOCK_TYPE)
@@ -135,7 +135,7 @@ class ZMino(Mino):
         ['', '', '']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = ZMino.SHAPE
+        self.current_shape: Grid = ZMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
     def rotate_right(self) -> None:
         self.current_shape = self.mino3x3.rotate_right(self.current_shape, ZMino.BLOCK_TYPE)
@@ -150,7 +150,7 @@ class JMino(Mino):
         ['', '', '']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = JMino.SHAPE
+        self.current_shape: Grid = JMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
     def rotate_right(self) -> None:
         self.current_shape = self.mino3x3.rotate_right(self.current_shape, JMino.BLOCK_TYPE)
@@ -165,7 +165,7 @@ class LMino(Mino):
         ['', '', '']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = LMino.SHAPE
+        self.current_shape: Grid = LMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
     def rotate_right(self) -> None:
         self.current_shape = self.mino3x3.rotate_right(self.current_shape, LMino.BLOCK_TYPE)
@@ -180,7 +180,7 @@ class TMino(Mino):
         ['', '', '']
     ], BLOCK_TYPE)
     def __init__(self) -> None:
-        self.current_shape: list[list[str]] = TMino.SHAPE
+        self.current_shape: Grid = TMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
     def rotate_right(self) -> None:
         self.current_shape = self.mino3x3.rotate_right(self.current_shape, TMino.BLOCK_TYPE)
