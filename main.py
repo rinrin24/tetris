@@ -43,6 +43,21 @@ class Grid:
     def add_block(self, position_x: int, position_y: int, block: Block) -> Self:
         self.grid[position_y][position_x] = block
         return
+    def _is_outside(self, position_x: int, position_y: int) -> bool:
+        if (position_x < 0) or (position_y < 0):
+            return True
+        if (position_x > self.size_x) or (position_y > self.size_y):
+            return True
+        return False
+    def plot_grid(self, position_x: int, position_y: int, size_x: int, size_y: int) -> Self:
+        new_grid = Grid(size_x, size_y)
+        for y in range(size_y):
+            for x in range(size_x):
+                if self._is_outside(x, y):
+                    new_grid.add_block(x, y, Block.WALL())
+                if not self._is_outside(x, y):
+                    new_grid.add_block(x, y, self.grid[position_y + y][position_x + x])
+        return new_grid
 
 class Mino3x3:
     def rotate_right(self, current_shape: Grid, block_type: Block) -> Grid:
