@@ -202,6 +202,15 @@ class TMino(Mino):
     def get_grid(self) -> None:
         return self.current_shape
 
+class EmptyMino(Mino):
+    def __init__(self) -> None:
+        self.current_shape: Grid = Grid(0, 0)
+    def rotate_right(self) -> None:
+        pass
+    def rotate_left(self) -> None:
+        pass
+    def get_grid(self) -> None:
+        return self.current_shape
 
 @dataclass(frozen=True, slots=True)
 class Position:
