@@ -245,7 +245,11 @@ class CurrentMino:
         self.mino: Mino = new_mino
         self.position: Position = Tetris.INITIAL_POSITION
 
+class MinoPile:
+    def __init__(self) -> None:
         mino_pile: list[Mino] = [IMino(), OMino(), SMino(), ZMino(), JMino(), LMino(), TMino()]
+        self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
+
 class Tetris:
     INITIAL_POSITION = Position(4, 19)
     def __init__(self) -> None:
