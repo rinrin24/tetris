@@ -14,7 +14,7 @@ class Block:
 
 class Grid:
     @classmethod
-    def from_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
+    def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
         new_grid: Grid = cls(len(new_list[0]), len(new_list))
         for i, column in enumerate(new_list):
             for j, block in enumerate(column):
@@ -38,5 +38,5 @@ SHAPE = [
     ['o', 'x', ''],
     ['', '', '']
 ]
-grid2 = Grid.from_list(SHAPE, Block(2))
+grid2 = Grid.from_string_list(SHAPE, Block(2))
 print(grid2.grid)
