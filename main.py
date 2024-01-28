@@ -251,6 +251,6 @@ class MinoPile:
         self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
 
 class Tetris:
-    INITIAL_POSITION = Position(4, 19)
+    INITIAL_POSITION: Position = Position(4, 19)
     def __init__(self) -> None:
         pass
