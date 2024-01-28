@@ -255,4 +255,7 @@ class Tetris:
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
     def __init__(self) -> None:
+        self.main_field: Grid = Grid(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y)
+        self.current_mino_pile: MinoPile = MinoPile()
+        self.current_position: Position = Tetris.INITIAL_POSITION
         pass
