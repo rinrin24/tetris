@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABCMeta
-from typing import Self
+from typing import Self, ClassVar
 from dataclasses import dataclass
 
 class Mino(metaclass=ABCMeta):
@@ -9,14 +9,19 @@ class Mino(metaclass=ABCMeta):
     def rotate_left(self) -> None:
         raise NotImplementedError()
 
+@dataclass(frozen=True, eq=True)
 class Block:
+    _block_type: int
+    EMPTY_NUMBER: ClassVar[int] = 0
+    WALL_NUMBER: ClassVar[int] = -1
     @classmethod
-    def make_empty(cls) -> Self:
-        return cls(None)
-    def __init__(self, block_type: int) -> None:
-        self._block_type: int = block_type
+    def EMPTY(cls) -> Self:
+        return cls(Block.EMPTY_NUMBER)
+    @classmethod
+    def WALL(cls) -> Self:
+        return cls(Block.WALL_NUMBER)
     def is_empty(self) -> bool:
-        return self._block_type is None
+        return self._block_type is Block.EMPTY_NUMBER
 
 class Grid:
     @classmethod
@@ -30,7 +35,7 @@ class Grid:
     def __init__(self, size_x: int, size_y: int) -> None:
         self.size_x: int = size_x
         self.size_y: int = size_y
-        self.grid = [[ Block(None) for i in range(size_x)] for j in range(size_y)]
+        self.grid = [[ Block.EMPTY() for i in range(size_x)] for j in range(size_y)]
     def is_empty(self, position_x: int, position_y: int) -> bool:
         return self.grid[position_y][position_x].is_empty
     def add_block(self, position_x: int, position_y: int, block: Block) -> Self:
