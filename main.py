@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABCMeta
 from typing import Self, ClassVar
 from dataclasses import dataclass
+from random import sample
 
 class Mino(metaclass=ABCMeta):
     @abstractmethod
