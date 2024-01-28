@@ -8,6 +8,7 @@ class Mino(metaclass=ABCMeta):
         raise NotImplementedError()
     def rotate_left(self) -> None:
         raise NotImplementedError()
+    def get_grid(self) -> None:
         raise NotImplementedError()
 
 @dataclass(frozen=True, eq=True)
