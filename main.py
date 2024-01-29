@@ -23,6 +23,18 @@ class Size:
     y: int
     __slots__ = ['x, y']
 
+@dataclass(frozen=True, slots=True)
+class Position:
+    """shows the position of each mino
+
+    x coordinate will be counted from the left end of the field
+    y coordinate will be counted from the bottom of the field
+
+    """
+    x: int
+    y: int
+    __slots__ = ['x', 'y']
+
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
@@ -254,18 +266,6 @@ class EmptyMino(Mino):
         return self.current_shape
     def get_size(self) -> Size:
         return self.current_shape.get_size()
-
-@dataclass(frozen=True, slots=True)
-class Position:
-    """shows the position of each mino
-
-    x coordinate will be counted from the left end of the field
-    y coordinate will be counted from the bottom of the field
-
-    """
-    x: int
-    y: int
-    __slots__ = ['x', 'y']
 
 @dataclass(frozen=True, slots=True)
 class CurrentMino:
