@@ -28,6 +28,7 @@ class Position:
     """shows the position of each mino
 
     x coordinate will be counted from the left end of the field
+
     y coordinate will be counted from the bottom of the field
 
     """
@@ -41,6 +42,13 @@ class Position:
 
 @dataclass(frozen=True, slots=True)
 class CenterPosition:
+    """shows the center position of each mino
+
+    x coordinate will be counted from the left end of the field
+
+    y coordinate will be counted from the bottom of the field
+
+    """
     x: int
     y: int
     __slots__ = ['x', 'y']
