@@ -26,6 +26,12 @@ class Block:
     def is_empty(self) -> bool:
         return self._block_type is Block.EMPTY_NUMBER
 
+@dataclass(frozen=True, slots=True)
+class Size:
+    x: int
+    y: int
+    __slots__ = ['x, y']
+
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
