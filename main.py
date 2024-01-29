@@ -88,7 +88,7 @@ class Grid:
                 if self._is_outside(x, y):
                     new_grid.add_block(Position(x, y), Block.WALL())
                 if not self._is_outside(x, y):
-                    new_grid.add_block(Position(x, y), self.grid[position.y + y][position.x + x])
+                    new_grid.add_block(Position(x, y), self.grid[position.y - y][position.x + x])
         return new_grid
     def get_size(self) -> Size:
         return Size(len(self.grid[0]), len(self.grid))
