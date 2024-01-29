@@ -321,7 +321,7 @@ class Tetris:
         for y, column in enumerate(self.current_mino.mino.get_grid().grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    if not surrounding_grid.grid[y][x + 1].is_empty():
+                    if not surrounding_grid.grid[y][x + 2].is_empty():
                         return
         self.current_mino.position = Position(position.x + 1, position.y)
     def move_left(self) -> None:
@@ -333,6 +333,6 @@ class Tetris:
         for y, column in enumerate(self.current_mino.mino.get_grid().grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    if not surrounding_grid.grid[y][x - 1].is_empty():
+                    if not surrounding_grid.grid[y][x].is_empty():
                         return
         self.current_mino.position = Position(position.x - 1, position.y)
