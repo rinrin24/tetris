@@ -38,20 +38,20 @@ class Position:
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
-        new_grid: Grid = cls(len(new_list[0]), len(new_list))
+        new_grid: Grid = cls(Size(len(new_list[0]), len(new_list)))
         for i, column in enumerate(new_list):
             for j, block in enumerate(column):
                 if not block == '':
-                    new_grid.add_block(j, i, block_type)
+                    new_grid.add_block(Position(j, i), block_type)
         return new_grid
-    def __init__(self, size_x: int, size_y: int) -> None:
-        self.size_x: int = size_x
-        self.size_y: int = size_y
-        self.grid = [[ Block.EMPTY() for i in range(size_x)] for j in range(size_y)]
-    def is_empty(self, position_x: int, position_y: int) -> bool:
-        return self.grid[position_y][position_x].is_empty
-    def add_block(self, position_x: int, position_y: int, block: Block) -> Self:
-        self.grid[position_y][position_x] = block
+    def __init__(self, size: Size) -> None:
+        self.size_x: int = size.x
+        self.size_y: int = size.y
+        self.grid = [[ Block.EMPTY() for i in range(size.x)] for j in range(size.y)]
+    def is_empty(self, position: Position) -> bool:
+        return self.grid[position.y][position.x].is_empty
+    def add_block(self, position: Position, block: Block) -> Self:
+        self.grid[position.y][position.x] = block
         return
     def _is_outside(self, position_x: int, position_y: int) -> bool:
         if (position_x < 0) or (position_y < 0):
@@ -59,14 +59,14 @@ class Grid:
         if (position_x > self.size_x) or (position_y > self.size_y):
             return True
         return False
-    def plot_grid(self, position_x: int, position_y: int, size_x: int, size_y: int) -> Self:
-        new_grid = Grid(size_x, size_y)
-        for y in range(size_y):
-            for x in range(size_x):
+    def plot_grid(self, position: Position, size: Size) -> Self:
+        new_grid = Grid(size)
+        for y in range(size.y):
+            for x in range(size.x):
                 if self._is_outside(x, y):
-                    new_grid.add_block(x, y, Block.WALL())
+                    new_grid.add_block(Position(x, y), Block.WALL())
                 if not self._is_outside(x, y):
-                    new_grid.add_block(x, y, self.grid[position_y + y][position_x + x])
+                    new_grid.add_block(Position(x, y), self.grid[position.y + y][position.x + x])
         return new_grid
     def get_size(self) -> Size:
         return Size(len(self.grid[0]), len(self.grid))
@@ -84,34 +84,34 @@ class Mino(metaclass=ABCMeta):
 
 class Mino3x3:
     def rotate_right(self, current_shape: Grid, block_type: Block) -> Grid:
-        new_shape = Grid(3, 3)
-        new_shape.add_block(1, 1, block_type)
+        new_shape = Grid(Size(3, 3))
+        new_shape.add_block(Position(1, 1), block_type)
         current_grid: list[list[Block]] = current_shape.grid
         for i in range(3):
             if not current_grid[0][i].is_empty():
-                new_shape.add_block(2, i, block_type)
+                new_shape.add_block(Position(2, i), block_type)
         if not current_grid[1][0].is_empty():
-            new_shape.add_block(1, 0, block_type)
+            new_shape.add_block(Position(1, 0), block_type)
         if not current_grid[1][2].is_empty():
-            new_shape.add_block(1, 2, block_type)
+            new_shape.add_block(Position(1, 2), block_type)
         for i in range(3):
             if not current_grid[2][i].is_empty():
-                new_shape.add_block(0, i, block_type)
+                new_shape.add_block(Position(0, i), block_type)
         return new_shape
     def rotate_left(self, current_shape: Grid, block_type: Block) -> Grid:
-        new_shape = Grid(3, 3)
-        new_shape.add_block(1, 1, block_type)
+        new_shape = Grid(Size(3, 3))
+        new_shape.add_block(Position(1, 1), block_type)
         current_grid: list[list[Block]] = current_shape.grid
         for i in range(3):
             if not current_grid[0][i].is_empty():
-                new_shape.add_block(0, 2-i, block_type)
+                new_shape.add_block(Position(0, 2-i), block_type)
         if not current_grid[1][0].is_empty():
-            new_shape.add_block(1, 2, block_type)
+            new_shape.add_block(Position(1, 2), block_type)
         if not current_grid[1][2].is_empty():
-            new_shape.add_block(1, 0, block_type)
+            new_shape.add_block(Position(1, 0), block_type)
         for i in range(3):
             if not current_grid[2][i].is_empty():
-                new_shape.add_block(2, 2-i, block_type)
+                new_shape.add_block(Position(2, 2-i), block_type)
         return new_shape
 
 class IMino(Mino):
@@ -125,18 +125,18 @@ class IMino(Mino):
     def __init__(self) -> None:
         self.current_shape: Grid = IMino.SHAPE
     def rotate_right(self) -> None:
-        new_shape = Grid(4, 4)
+        new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
-                    new_shape.add_block(3-j, i, IMino.BLOCK_TYPE)
+                    new_shape.add_block(Position(3-j, i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
     def rotate_left(self) -> None:
-        new_shape = Grid(4, 4)
+        new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
-                    new_shape.add_block(j, 3-i, IMino.BLOCK_TYPE)
+                    new_shape.add_block(Position(j, 3-i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
     def get_grid(self) -> None:
         return self.current_shape
@@ -257,7 +257,7 @@ class TMino(Mino):
 
 class EmptyMino(Mino):
     def __init__(self) -> None:
-        self.current_shape: Grid = Grid(0, 0)
+        self.current_shape: Grid = Grid(Size(0, 0))
     def rotate_right(self) -> None:
         pass
     def rotate_left(self) -> None:
@@ -285,7 +285,7 @@ class Tetris:
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
     def __init__(self) -> None:
-        self.main_field: Grid = Grid(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y)
+        self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y))
         self.current_mino_pile: MinoPile = MinoPile()
         self.current_position: Position = Tetris.INITIAL_POSITION
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
