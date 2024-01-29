@@ -336,3 +336,14 @@ class Tetris:
                     if not surrounding_grid.grid[y][x].is_empty():
                         return
         self.current_mino.position = Position(position.x - 1, position.y)
+    def move_down(self) -> None:
+        position = self.current_mino.position
+        size = self.current_mino_size
+        new_size = Size(size.x, size.y + 1)
+        surrounding_grid = self.main_field.plot_grid(position, new_size)
+        for y, column in enumerate(self.current_mino.mino.get_grid().grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    if not surrounding_grid.grid[y - 1][x].is_empty():
+                        return
+        self.current_mino.position = Position(position.x, position.y - 1)
