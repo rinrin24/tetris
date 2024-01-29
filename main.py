@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 from typing import Self, ClassVar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from random import sample
 
 @dataclass(frozen=True, eq=True)
