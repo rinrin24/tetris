@@ -267,9 +267,12 @@ class Position:
     y: int
     __slots__ = ['x', 'y']
 
+@dataclass(frozen=True, slots=True)
 class CurrentMino:
-    def __init__(self, new_mino: Mino) -> None:
-        self.mino: Mino = new_mino
+    mino: Mino
+    position: Position = field(init=False)
+
+    def __post_init__(self) -> None:
         self.position: Position = Tetris.INITIAL_POSITION
 
 class MinoPile:
