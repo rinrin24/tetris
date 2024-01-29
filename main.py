@@ -288,4 +288,4 @@ class Tetris:
         self.main_field: Grid = Grid(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y)
         self.current_mino_pile: MinoPile = MinoPile()
         self.current_position: Position = Tetris.INITIAL_POSITION
-        pass
+        self.current_mino: CurrentMino = CurrentMino(EmptyMino())
