@@ -65,6 +65,9 @@ class Grid:
                 if not self._is_outside(x, y):
                     new_grid.add_block(x, y, self.grid[position_y + y][position_x + x])
         return new_grid
+    def get_size(self) -> Size:
+        return Size(len(self.grid[0]), len(self.grid))
+
 class Mino(metaclass=ABCMeta):
     @abstractmethod
     def rotate_right(self) -> None:
@@ -134,6 +137,8 @@ class IMino(Mino):
         self.current_shape = new_shape
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class OMino(Mino):
     BLOCK_TYPE: Block = Block(2)
@@ -149,6 +154,8 @@ class OMino(Mino):
         return
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class SMino(Mino):
     BLOCK_TYPE: Block = Block(3)
@@ -166,6 +173,8 @@ class SMino(Mino):
         self.current_shape = self.mino3x3.rotate_left(self.current_shape, SMino.BLOCK_TYPE)
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class ZMino(Mino):
     BLOCK_TYPE = Block(4)
@@ -183,6 +192,8 @@ class ZMino(Mino):
         self.current_shape = self.mino3x3.rotate_left(self.current_shape, ZMino.BLOCK_TYPE)
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class JMino(Mino):
     BLOCK_TYPE: Block = Block(5)
@@ -200,6 +211,8 @@ class JMino(Mino):
         self.current_shape = self.mino3x3.rotate_left(self.current_shape, JMino.BLOCK_TYPE)
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class LMino(Mino):
     BLOCK_TYPE: Block = Block(6)
@@ -217,6 +230,8 @@ class LMino(Mino):
         self.current_shape = self.mino3x3.rotate_left(self.current_shape, LMino.BLOCK_TYPE)
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class TMino(Mino):
     BLOCK_TYPE: Block = Block(7)
@@ -234,6 +249,8 @@ class TMino(Mino):
         self.current_shape = self.mino3x3.rotate_left(self.current_shape, TMino.BLOCK_TYPE)
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 class EmptyMino(Mino):
     def __init__(self) -> None:
@@ -244,6 +261,8 @@ class EmptyMino(Mino):
         pass
     def get_grid(self) -> None:
         return self.current_shape
+    def get_size(self) -> Size:
+        return self.current_shape.get_size()
 
 @dataclass(frozen=True, slots=True)
 class Position:
