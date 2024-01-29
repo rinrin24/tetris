@@ -65,6 +65,16 @@ class Grid:
                 if not self._is_outside(x, y):
                     new_grid.add_block(x, y, self.grid[position_y + y][position_x + x])
         return new_grid
+class Mino(metaclass=ABCMeta):
+    @abstractmethod
+    def rotate_right(self) -> None:
+        raise NotImplementedError()
+    def rotate_left(self) -> None:
+        raise NotImplementedError()
+    def get_grid(self) -> Grid:
+        raise NotImplementedError()
+    def get_size(self) -> Size:
+        raise NotImplementedError()
 
 class Mino3x3:
     def rotate_right(self, current_shape: Grid, block_type: Block) -> Grid:
