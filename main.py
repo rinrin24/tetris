@@ -3,15 +3,6 @@ from typing import Self, ClassVar
 from dataclasses import dataclass
 from random import sample
 
-class Mino(metaclass=ABCMeta):
-    @abstractmethod
-    def rotate_right(self) -> None:
-        raise NotImplementedError()
-    def rotate_left(self) -> None:
-        raise NotImplementedError()
-    def get_grid(self) -> None:
-        raise NotImplementedError()
-
 @dataclass(frozen=True, eq=True)
 class Block:
     _block_type: int
