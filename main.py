@@ -311,3 +311,28 @@ class Tetris:
         self.current_mino_pile: MinoPile = MinoPile()
         self.current_position: Position = Tetris.INITIAL_POSITION
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
+        self.current_mino_size: Size = self.current_mino.mino.get_size()
+    def move_right(self) -> None:
+        position = self.current_mino.position
+        new_position = Position(position.x - 1, position.y)
+        size = self.current_mino_size
+        new_size = Size(size.x + 2, size.y)
+        surrounding_grid = self.main_field.plot_grid(new_position, new_size)
+        for y, column in enumerate(self.current_mino.mino.get_grid().grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    if not surrounding_grid.grid[y][x + 1].is_empty():
+                        return
+        self.current_mino.position = Position(position.x + 1, position.y)
+    def move_left(self) -> None:
+        position = self.current_mino.position
+        new_position = Position(position.x - 1, position.y)
+        size = self.current_mino_size
+        new_size = Size(size.x + 2, size.y)
+        surrounding_grid = self.main_field.plot_grid(new_position, new_size)
+        for y, column in enumerate(self.current_mino.mino.get_grid().grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    if not surrounding_grid.grid[y][x - 1].is_empty():
+                        return
+        self.current_mino.position = Position(position.x - 1, position.y)
