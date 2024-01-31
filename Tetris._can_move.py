@@ -1,7 +1,6 @@
 from abc import abstractmethod, ABCMeta
 from typing import Self, ClassVar
 from dataclasses import dataclass, field
-from random import sample
 
 @dataclass(frozen=True, eq=True)
 class Block:
@@ -54,11 +53,6 @@ class CenterPosition:
         new_y = self.y - size.y // 2
         return Position(new_x, new_y)
 
-@dataclass(frozen=True, slots=True)
-class PlotGridPosition:
-    x: int
-    y: int
-
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
@@ -94,6 +88,18 @@ class Grid:
         return new_grid
     def get_size(self) -> Size:
         return Size(len(self.grid[0]), len(self.grid))
+    def __repr__(self) -> str:
+        return_string = '[\n'
+        for column in self.grid:
+            return_string += '  [ '
+            for block in column:
+                if block.is_empty():
+                    return_string += ' , '
+                if not block.is_empty():
+                    return_string += str(block._block_type) + ', '
+            return_string += ']\n'
+        return_string += ']\n'
+        return return_string
 
 class Mino(metaclass=ABCMeta):
     @abstractmethod
@@ -291,7 +297,7 @@ class EmptyMino(Mino):
     def get_size(self) -> Size:
         return self.current_shape.get_size()
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class CurrentMino:
     mino: Mino
     position: Position = field(init=False)
@@ -299,64 +305,38 @@ class CurrentMino:
     def __post_init__(self) -> None:
         self.position: Position = Tetris.INITIAL_POSITION
 
-class MinoPile:
-    def __init__(self) -> None:
-        mino_pile: list[Mino] = [IMino(), OMino(), SMino(), ZMino(), JMino(), LMino(), TMino()]
-        self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
-
 class Tetris:
     INITIAL_POSITION: Position = Position(4, 19)
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
-    def __init__(self) -> None:
-        self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y))
-        self.current_mino_pile: MinoPile = MinoPile()
-        self.current_position: Position = Tetris.INITIAL_POSITION
-        self.current_mino: CurrentMino = CurrentMino(EmptyMino())
-        self.current_mino_size: Size = self.current_mino.mino.get_size()
-    def _can_move(self, surrounding_grid: Grid, mino: Mino, position: PlotGridPosition) -> bool:
-        """whether mino can move in surrounding grid
 
-        Args:
-            surrounding_grid (Grid): surrounding grid of mino
-            mino (Mino): the shape of mino
-            position (Position): position of mino in surrounding grid
+def can_move(surrounding_grid: Grid, mino: Mino, position: Position) -> bool:
+    """whether mino can move in surrounding grid
 
-        Returns:
-            bool: whether mino can move
-        """
-        position_x = position.x
-        position_y = position.y
-        mino_grid = mino.get_grid().grid
-        for y, column in enumerate(mino_grid):
-            for x, block in enumerate(column):
-                if not block.is_empty():
-                    if not surrounding_grid.grid[y+position_y][x+position_x].is_empty():
-                        return False
-        return True
-    def move_right(self) -> None:
-        position = self.current_mino.position
-        new_position = Position(position.x - 1, position.y)
-        size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y)
-        surrounding_grid = self.main_field.plot_grid(new_position, new_size)
-        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(2, 0)):
-            return
-        self.current_mino.position = Position(position.x + 1, position.y)
-    def move_left(self) -> None:
-        position = self.current_mino.position
-        new_position = Position(position.x - 1, position.y)
-        size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y)
-        surrounding_grid = self.main_field.plot_grid(new_position, new_size)
-        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 0)):
-            return
-        self.current_mino.position = Position(position.x - 1, position.y)
-    def move_down(self) -> None:
-        position = self.current_mino.position
-        size = self.current_mino_size
-        new_size = Size(size.x, size.y + 1)
-        surrounding_grid = self.main_field.plot_grid(position, new_size)
-        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
-            return
-        self.current_mino.position = Position(position.x, position.y - 1)
+    Args:
+        surrounding_grid (Grid): surrounding grid of mino
+        mino (Mino): the shape of mino
+        position (Position): position of mino in surrounding grid
+
+    Returns:
+        bool: whether mino can move
+    """
+    position_x = position.x
+    position_y = position.y
+    mino_grid = mino.get_grid().grid
+    for y, column in enumerate(mino_grid):
+        for x, block in enumerate(column):
+            if not block.is_empty():
+                if not surrounding_grid.grid[y+position_y][x+position_x].is_empty():
+                    return False
+    return True
+
+surrounding_grid = Grid(Size(6, 6))
+surrounding_grid.add_block(Position(1, 2), Block(1))
+
+print(surrounding_grid)
+
+t_mino = IMino()
+mino_position = Position(1, 1)
+print(t_mino.get_grid())
+print(can_move(surrounding_grid, t_mino, mino_position))
