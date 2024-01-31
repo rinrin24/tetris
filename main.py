@@ -286,7 +286,7 @@ class EmptyMino(Mino):
     def get_size(self) -> Size:
         return self.current_shape.get_size()
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class CurrentMino:
     mino: Mino
     position: Position = field(init=False)
