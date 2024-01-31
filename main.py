@@ -21,7 +21,6 @@ class Block:
 class Size:
     x: int
     y: int
-    __slots__ = ['x, y']
 
 @dataclass(frozen=True, slots=True)
 class Position:
@@ -34,7 +33,6 @@ class Position:
     """
     x: int
     y: int
-    __slots__ = ['x', 'y']
     def to_center_position(self, size: Size) -> 'CenterPosition':
         new_x = self.x + size.x // 2
         new_y = self.y + size.y // 2
@@ -51,7 +49,6 @@ class CenterPosition:
     """
     x: int
     y: int
-    __slots__ = ['x', 'y']
     def to_position(self, size: Size) -> Position:
         new_x = self.x - size.x // 2
         new_y = self.y - size.y // 2
