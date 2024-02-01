@@ -145,6 +145,8 @@ class Grid:
                     new_grid.add_block(Position(x, y), self.grid[position.y - y][position.x + x])
         return new_grid
     def get_size(self) -> Size:
+        if len(self.grid) <= 0:
+            return Size(0, 0)
         return Size(len(self.grid[0]), len(self.grid))
 
 class Mino(metaclass=ABCMeta):
