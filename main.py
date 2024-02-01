@@ -108,6 +108,10 @@ class Direction:
         if self == Direction.D():
             return Direction.A()
 
+@dataclass(frozen=True, slots=True, eq=True)
+class SuperRotationStep:
+    step: int
+
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> 'Grid':
@@ -159,6 +163,14 @@ class Mino(metaclass=ABCMeta):
     @abstractmethod
     def get_direction(self) -> Direction:
         raise NotImplementedError()
+    @abstractmethod
+    def super_rotate(self,
+                     current_direction: Direction,
+                     previous_direction: Direction,
+                     current_step: SuperRotationStep,
+                     current_relative_position: RelativePosition
+                    ) -> RelativePosition:
+        raise NotImplementedError()
 
 class Mino3x3:
     def rotate_right(self, current_shape: Grid, block_type: Block) -> Grid:
@@ -191,6 +203,49 @@ class Mino3x3:
             if not current_grid[2][i].is_empty():
                 new_shape.add_block(Position(2, 2-i), block_type)
         return new_shape
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        current_x = current_relative_position.x
+        current_y = current_relative_position.y
+        is_right_rotation = ((current_direction.value - 1) % 4) == previous_direction.value
+        if current_step == SuperRotationStep(0):
+            if current_direction == Direction.B():
+                return RelativePosition(current_x-1, current_y+0)
+            if current_direction == Direction.D():
+                return RelativePosition(current_x+1, current_y+0)
+            # rotate right
+            if is_right_rotation:
+                return RelativePosition(current_x-1, current_y+0)
+            # rotate left
+            if not is_right_rotation:
+                return RelativePosition(current_x+1, current_y+0)
+        if current_step == SuperRotationStep(1):
+            if (current_direction == Direction.B()) or (current_direction == Direction.D()):
+                return RelativePosition(current_x+0, current_y-1)
+            if (current_direction == Direction.A()) or (current_direction == Direction.C()):
+                return RelativePosition(current_x+0, current_y+1)
+        if current_step == SuperRotationStep(2):
+            if (current_direction == Direction.B()) or (current_direction == Direction.D()):
+                return RelativePosition(0, 2)
+            if (current_direction == Direction.A()) or (current_direction == Direction.C()):
+                return RelativePosition(0, -2)
+        if current_step == SuperRotationStep(3):
+            if current_direction == Direction.B():
+                return RelativePosition(current_x-1, current_y+0)
+            if current_direction == Direction.D():
+                return RelativePosition(current_x+1, current_y+0)
+            # rotate right
+            if is_right_rotation:
+                return RelativePosition(current_x-1, current_y+0)
+            # rotate left
+            if not is_right_rotation:
+                return RelativePosition(current_x+1, current_y+0)
+        return
 
 class IMino(Mino):
     BLOCK_TYPE: Block = Block(1)
@@ -380,6 +435,13 @@ class EmptyMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep
+        ) -> RelativePosition:
+        return
 
 @dataclass(slots=True)
 class CurrentMino:
