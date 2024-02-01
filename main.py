@@ -74,9 +74,8 @@ class Grid:
         self.grid = [[ Block.EMPTY() for i in range(size.x)] for j in range(size.y)]
     def is_empty(self, position: Position) -> bool:
         return self.grid[position.y][position.x].is_empty()
-    def add_block(self, position: Position, block: Block) -> Self:
+    def add_block(self, position: Position, block: Block) -> None:
         self.grid[position.y][position.x] = block
-        return
     def _is_outside(self, position_x: int, position_y: int) -> bool:
         if (position_x < 0) or (position_y < 0):
             return True
