@@ -245,7 +245,7 @@ class Mino3x3:
             # rotate left
             if not is_right_rotation:
                 return RelativePosition(current_x+1, current_y+0)
-        return
+        return RelativePosition(0, 0)
 
 class IMino(Mino):
     BLOCK_TYPE: Block = Block(1)
@@ -362,6 +362,7 @@ class IMino(Mino):
                     return RelativePosition(2, 1)
                 if not is_right_rotation:
                     return RelativePosition(1, -2)
+        return RelativePosition(0, 0)
 
 class OMino(Mino):
     BLOCK_TYPE: Block = Block(2)
@@ -382,6 +383,8 @@ class OMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(self, current_direction: Direction, previous_direction: Direction, current_step: SuperRotationStep, current_relative_position: RelativePosition) -> RelativePosition:
+        return RelativePosition(0, 0)
 
 class SMino(Mino):
     BLOCK_TYPE: Block = Block(3)
