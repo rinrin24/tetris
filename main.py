@@ -383,7 +383,13 @@ class OMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
-    def super_rotate(self, current_direction: Direction, previous_direction: Direction, current_step: SuperRotationStep, current_relative_position: RelativePosition) -> RelativePosition:
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
         return RelativePosition(0, 0)
 
 class SMino(Mino):
