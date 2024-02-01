@@ -64,6 +64,20 @@ class RelativeGridPosition:
     x: int
     y: int
 
+@dataclass(frozen=True, slots=True)
+class Direction:
+    """the direction of mino
+    
+    Note:
+        direction numbers are defined from page under
+        https://tetrisch.github.io/main/srs.html
+    """    
+    value: int
+    A: ClassVar['Direction'] = 0
+    B: ClassVar['Direction'] = 1
+    C: ClassVar['Direction'] = 2
+    D: ClassVar['Direction'] = 3
+
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> 'Grid':
