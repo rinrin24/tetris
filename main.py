@@ -610,18 +610,31 @@ class CurrentMino:
     def __post_init__(self) -> None:
         self.position: Position = Tetris.INITIAL_POSITION.to_position(self.mino.get_size())
 
+class EmptyMinoPileException(Exception):
+    pass
+
 class MinoPile:
     def __init__(self) -> None:
         mino_pile: list[Mino] = [IMino(), OMino(), SMino(), ZMino(), JMino(), LMino(), TMino()]
         self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
+    def pop_mino(self) -> Mino:
+        if self.is_empty():
+            raise EmptyMinoPileException()
+        return self.pile.pop(0)
+    def is_empty(self) -> bool:
+        if len(self.pile) <= 0:
+            return True
+        return False
 
 class Tetris:
     INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
+    NEXT_NUMBER: int = 5
     def __init__(self) -> None:
         self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y))
         self.current_mino_pile: MinoPile = MinoPile()
+        self.next_mino_pile: MinoPile = MinoPile()
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
         self.current_mino_size: Size = self.current_mino.mino.get_size()
     def _can_move(self, surrounding_grid: Grid, mino: Mino, position: PlotGridPosition) -> bool:
@@ -670,3 +683,8 @@ class Tetris:
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
             return
         self.current_mino.position = Position(position.x, position.y - 1)
+    def make_mino(self) -> None:
+        self.current_mino = CurrentMino(self.current_mino_pile.pop_mino())
+        if self.current_mino_pile.is_empty():
+            self.current_mino_pile = self.next_mino_pile
+            self.next_mino_pile = MinoPile()
