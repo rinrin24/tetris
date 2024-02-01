@@ -59,6 +59,11 @@ class PlotGridPosition:
     x: int
     y: int
 
+@dataclass(frozen=True, slots=True)
+class RelativeGridPosition:
+    x: int
+    y: int
+
 class Grid:
     @classmethod
     def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> 'Grid':
