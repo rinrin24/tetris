@@ -626,6 +626,9 @@ class MinoPile:
             return True
         return False
 
+class NotBottomException(Exception):
+    pass
+
 class Tetris:
     INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
     FIELD_SIZE_X: int = 10
@@ -696,3 +699,13 @@ class Tetris:
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
             return True
         return False
+    def place_mino(self) -> None:
+        if not self.is_bottom:
+            raise NotBottomException()
+        current_mino_grid = self.current_mino.mino.get_grid().grid
+        current_x = self.current_mino.position.x
+        current_y = self.current_mino.position.y
+        for y, column in enumerate(current_mino_grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    self.main_field.add_block(Position(current_x + x, current_y + y), block)
