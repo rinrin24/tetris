@@ -73,7 +73,7 @@ class Grid:
         self.size_y: int = size.y
         self.grid = [[ Block.EMPTY() for i in range(size.x)] for j in range(size.y)]
     def is_empty(self, position: Position) -> bool:
-        return self.grid[position.y][position.x].is_empty
+        return self.grid[position.y][position.x].is_empty()
     def add_block(self, position: Position, block: Block) -> Self:
         self.grid[position.y][position.x] = block
         return
