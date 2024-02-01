@@ -688,3 +688,11 @@ class Tetris:
         if self.current_mino_pile.is_empty():
             self.current_mino_pile = self.next_mino_pile
             self.next_mino_pile = MinoPile()
+    def is_bottom(self) -> None:
+        position = self.current_mino.position
+        size = self.current_mino_size
+        new_size = Size(size.x, size.y + 1)
+        surrounding_grid = self.main_field.plot_grid(position, new_size)
+        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
+            return True
+        return False
