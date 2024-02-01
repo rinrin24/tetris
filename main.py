@@ -89,6 +89,24 @@ class Direction:
     @classmethod
     def D(cls) -> 'Direction':
         return cls(Direction._NUMBER_D)
+    def rotate_left(self):
+        if self == Direction.A():
+            return Direction.D()
+        if self == Direction.B():
+            return Direction.A()
+        if self == Direction.C():
+            return Direction.B()
+        if self == Direction.D():
+            return Direction.C()
+    def rotate_right(self):
+        if self == Direction.A():
+            return Direction.B()
+        if self == Direction.B():
+            return Direction.C()
+        if self == Direction.C():
+            return Direction.D()
+        if self == Direction.D():
+            return Direction.A()
 
 class Grid:
     @classmethod
