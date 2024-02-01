@@ -608,7 +608,7 @@ class CurrentMino:
     position: Position = field(init=False)
 
     def __post_init__(self) -> None:
-        self.position: Position = Tetris.INITIAL_POSITION
+        self.position: Position = Tetris.INITIAL_POSITION.to_position(self.mino.get_size())
 
 class MinoPile:
     def __init__(self) -> None:
@@ -616,13 +616,12 @@ class MinoPile:
         self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
 
 class Tetris:
-    INITIAL_POSITION: Position = Position(4, 19)
+    INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
     def __init__(self) -> None:
         self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y))
         self.current_mino_pile: MinoPile = MinoPile()
-        self.current_position: Position = Tetris.INITIAL_POSITION
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
         self.current_mino_size: Size = self.current_mino.mino.get_size()
     def _can_move(self, surrounding_grid: Grid, mino: Mino, position: PlotGridPosition) -> bool:
