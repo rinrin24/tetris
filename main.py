@@ -280,6 +280,88 @@ class IMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        current_x = current_relative_position.x
+        current_y = current_relative_position.y
+        is_right_rotation = ((current_direction.value - 1) % 4) == previous_direction.value
+        if current_step == SuperRotationStep(0):
+            if previous_direction == Direction.A():
+                if current_direction == Direction.B():
+                    return RelativePosition(current_x-2, current_y+0)
+                if current_direction == Direction.D():
+                    return RelativePosition(current_x-1, current_y+0)
+            if previous_direction == Direction.C():
+                if current_direction == Direction.B():
+                    return RelativePosition(current_x+1, current_y+0)
+                if current_direction == Direction.D():
+                    return RelativePosition(current_x+2, current_y+0)
+            if is_right_rotation:
+                return RelativePosition(current_x-1, current_y+0)
+            if not is_right_rotation:
+                return RelativePosition(current_x+1, current_y+0)
+        if current_step == SuperRotationStep(1):
+            if previous_direction == Direction.A():
+                return RelativePosition(current_x+3, current_y)
+            if previous_direction == Direction.C():
+                return RelativePosition(current_x-3, current_y)
+            if current_direction == Direction.A():
+                if is_right_rotation:
+                    return RelativePosition(1, current_y)
+                if not is_right_rotation:
+                    return RelativePosition(-1, current_y)
+            if current_direction == Direction.C():
+                if is_right_rotation:
+                    return RelativePosition(2, current_y)
+                if not is_right_rotation:
+                    return RelativePosition(-2, current_y)
+        if current_step == SuperRotationStep(2):
+            if current_direction == Direction.B():
+                if is_right_rotation:
+                    return RelativePosition(-2, 1)
+                if not is_right_rotation:
+                    return RelativePosition(1, 2)
+            if current_direction == Direction.D():
+                if is_right_rotation:
+                    return RelativePosition(2, -1)
+                if not is_right_rotation:
+                    return RelativePosition(-1, -2)
+            if current_direction == Direction.A():
+                if is_right_rotation:
+                    return RelativePosition(1, 2)
+                if not is_right_rotation:
+                    return RelativePosition(2, -1)
+            if current_direction == Direction.C():
+                if is_right_rotation:
+                    return RelativePosition(-1, -2)
+                if not is_right_rotation:
+                    return RelativePosition(-2, 1)
+        if current_step == SuperRotationStep(3):
+            if current_direction == Direction.B():
+                if is_right_rotation:
+                    return RelativePosition(1, -2)
+                if not is_right_rotation:
+                    return RelativePosition(-2, -1)
+            if current_direction == Direction.D():
+                if is_right_rotation:
+                    return RelativePosition(-1, 2)
+                if not is_right_rotation:
+                    return RelativePosition(2, 1)
+            if current_direction == Direction.A():
+                if is_right_rotation:
+                    return RelativePosition(-2, -1)
+                if not is_right_rotation:
+                    return RelativePosition(-1, 2)
+            if current_direction == Direction.C():
+                if is_right_rotation:
+                    return RelativePosition(2, 1)
+                if not is_right_rotation:
+                    return RelativePosition(1, -2)
 
 class OMino(Mino):
     BLOCK_TYPE: Block = Block(2)
