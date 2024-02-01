@@ -60,7 +60,7 @@ class PlotGridPosition:
     y: int
 
 @dataclass(frozen=True, slots=True)
-class RelativeGridPosition:
+class RelativePosition:
     x: int
     y: int
 
