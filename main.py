@@ -61,7 +61,7 @@ class PlotGridPosition:
 
 class Grid:
     @classmethod
-    def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> Self:
+    def from_string_list(cls, new_list: list[list[str]], block_type: Block) -> 'Grid':
         new_grid: Grid = cls(Size(len(new_list[0]), len(new_list)))
         for i, column in enumerate(new_list):
             for j, block in enumerate(column):
@@ -83,7 +83,7 @@ class Grid:
         if (position_x > self.size_x) or (position_y > self.size_y):
             return True
         return False
-    def plot_grid(self, position: Position, size: Size) -> Self:
+    def plot_grid(self, position: Position, size: Size) -> 'Grid':
         new_grid = Grid(size)
         for y in range(size.y):
             for x in range(size.x):
