@@ -415,6 +415,19 @@ class SMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        return self.mino3x3.super_rotate(
+                current_direction,
+                previous_direction,
+                current_step,
+                current_relative_position
+            )
 
 class ZMino(Mino):
     BLOCK_TYPE = Block(4)
@@ -439,6 +452,19 @@ class ZMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        return self.mino3x3.super_rotate(
+                current_direction,
+                previous_direction,
+                current_step,
+                current_relative_position
+            )
 
 class JMino(Mino):
     BLOCK_TYPE: Block = Block(5)
@@ -463,6 +489,19 @@ class JMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        return self.mino3x3.super_rotate(
+                current_direction,
+                previous_direction,
+                current_step,
+                current_relative_position
+            )
 
 class LMino(Mino):
     BLOCK_TYPE: Block = Block(6)
@@ -487,6 +526,19 @@ class LMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        return self.mino3x3.super_rotate(
+                current_direction,
+                previous_direction,
+                current_step,
+                current_relative_position
+            )
 
 class TMino(Mino):
     BLOCK_TYPE: Block = Block(7)
@@ -511,6 +563,19 @@ class TMino(Mino):
         return self.current_shape.get_size()
     def get_direction(self) -> Direction:
         return self.current_direction
+    def super_rotate(
+            self,
+            current_direction: Direction,
+            previous_direction: Direction,
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
+        ) -> RelativePosition:
+        return self.mino3x3.super_rotate(
+                current_direction,
+                previous_direction,
+                current_step,
+                current_relative_position
+            )
 
 class EmptyMino(Mino):
     def __init__(self) -> None:
@@ -530,9 +595,10 @@ class EmptyMino(Mino):
             self,
             current_direction: Direction,
             previous_direction: Direction,
-            current_step: SuperRotationStep
+            current_step: SuperRotationStep,
+            current_relative_position: RelativePosition
         ) -> RelativePosition:
-        return
+        return RelativePosition(0, 0)
 
 @dataclass(slots=True)
 class CurrentMino:
