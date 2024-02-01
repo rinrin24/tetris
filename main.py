@@ -147,12 +147,16 @@ class Mino(metaclass=ABCMeta):
     @abstractmethod
     def rotate_right(self) -> None:
         raise NotImplementedError()
+    @abstractmethod
     def rotate_left(self) -> None:
         raise NotImplementedError()
+    @abstractmethod
     def get_grid(self) -> Grid:
         raise NotImplementedError()
+    @abstractmethod
     def get_size(self) -> Size:
         raise NotImplementedError()
+    @abstractmethod
     def get_direction(self) -> Direction:
         raise NotImplementedError()
 
