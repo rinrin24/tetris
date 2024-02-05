@@ -132,7 +132,7 @@ class Grid:
     def _is_outside(self, position_x: int, position_y: int) -> bool:
         if (position_x < 0) or (position_y < 0):
             return True
-        if (position_x > self.size_x) or (position_y > self.size_y):
+        if (position_x >= self.size_x) or (position_y >= self.size_y):
             return True
         return False
     def plot_grid(self, position: Position, size: Size) -> 'Grid':
@@ -680,9 +680,9 @@ class Tetris:
         return True
     def move_right(self) -> None:
         position = self.current_mino.position
-        new_position = Position(position.x - 1, position.y)
+        new_position = Position(position.x, position.y)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y)
+        new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(2, 0)):
             return
@@ -691,7 +691,7 @@ class Tetris:
         position = self.current_mino.position
         new_position = Position(position.x - 1, position.y)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y)
+        new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 0)):
             return

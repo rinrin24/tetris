@@ -30,46 +30,12 @@ def repr_grid(grid: Grid, current_mino: CurrentMino) -> str:
 tetris = Tetris()
 print(repr_grid(tetris.main_field, tetris.current_mino))
 tetris.make_mino()
-print(tetris.is_bottom())
-# tetris.place_mino()
-print(repr_grid(tetris.main_field, tetris.current_mino))
-# print(tetris.current_mino.position)
-for i in range(18):
-    tetris.move_down()
-print(repr_grid(tetris.main_field, tetris.current_mino))
-print(tetris.is_bottom())
 
-tetris.move_down()
 print(repr_grid(tetris.main_field, tetris.current_mino))
-print(tetris.is_bottom())
-
-tetris.move_down()
-print(repr_grid(tetris.main_field, tetris.current_mino))
-tetris.place_mino()
-
-tetris.make_mino()
-
-tetris.move_down()
-print(repr_grid(tetris.main_field, tetris.current_mino))
-
-current_number = 0
-for i in range(16):
-    tetris.move_down()
-    # print(tetris.is_bottom())
-print(repr_grid(tetris.main_field, tetris.current_mino))
-# print(current_number)
-print(tetris.is_bottom())
-tetris.place_mino()
-tetris.make_mino()
-print(repr_grid(tetris.main_field, tetris.current_mino))
-
-# tetris.make_mino()
-# for i in range(15):
-#     tetris.move_down()
-# print(repr_grid(tetris.main_field, tetris.current_mino))
-# print(tetris.is_bottom())
-# print(tetris.current_mino.position)
-# print(repr_grid(tetris.main_field, CurrentMino(EmptyMino())))
-# tetris.move_down()
+for i in range(7):
+    tetris.move_right()
+    print(tetris.current_mino.position)
+    print(repr_grid(tetris.main_field, tetris.current_mino))
 #print(repr_grid(tetris.main_field, tetris.current_mino))
+
 
