@@ -139,15 +139,27 @@ class Grid:
         new_grid = Grid(size)
         for y in range(size.y):
             for x in range(size.x):
-                if self._is_outside(x, y):
+                if self._is_outside(position.x+x, position.y+y):
                     new_grid.add_block(Position(x, y), Block.WALL())
-                if not self._is_outside(x, y):
-                    new_grid.add_block(Position(x, y), self.grid[position.y - y][position.x + x])
+                if not self._is_outside(position.x+x, position.y+y):
+                    new_grid.add_block(Position(x, y), self.grid[position.y + y][position.x + x])
         return new_grid
     def get_size(self) -> Size:
         if len(self.grid) <= 0:
             return Size(0, 0)
         return Size(len(self.grid[0]), len(self.grid))
+    def __repr__(self) -> str:
+        return_string = '[\n'
+        for line_number, column in enumerate(reversed(self.grid)):
+            return_string += f'  {str(line_number).zfill(3)}[ '
+            for block in column:
+                if block.is_empty():
+                    return_string += ' , '
+                if not block.is_empty():
+                    return_string += str(block._block_type) + ', '
+            return_string += ']\n'
+        return_string += ']\n'
+        return return_string
 
 class Mino(metaclass=ABCMeta):
     @abstractmethod
@@ -251,12 +263,12 @@ class Mino3x3:
 
 class IMino(Mino):
     BLOCK_TYPE: Block = Block(1)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['', '', '', ''],
         ['o', 'o', 'o', 'o'],
         ['', '', '', ''],
         ['', '', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = IMino.SHAPE
         self.current_direction: Direction = Direction.A()
@@ -368,10 +380,10 @@ class IMino(Mino):
 
 class OMino(Mino):
     BLOCK_TYPE: Block = Block(2)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['o', 'o'],
         ['o', 'o']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = OMino.SHAPE
         self.current_direction: Direction = Direction.A()
@@ -396,11 +408,11 @@ class OMino(Mino):
 
 class SMino(Mino):
     BLOCK_TYPE: Block = Block(3)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['', 'o', 'o'],
         ['o', 'x', ''],
         ['', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = SMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
@@ -433,11 +445,11 @@ class SMino(Mino):
 
 class ZMino(Mino):
     BLOCK_TYPE = Block(4)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['o', 'o', ''],
         ['', 'x', 'o'],
         ['', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = ZMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
@@ -470,11 +482,11 @@ class ZMino(Mino):
 
 class JMino(Mino):
     BLOCK_TYPE: Block = Block(5)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['o', '', ''],
         ['o', 'x', 'o'],
         ['', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = JMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
@@ -507,11 +519,11 @@ class JMino(Mino):
 
 class LMino(Mino):
     BLOCK_TYPE: Block = Block(6)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['', '', 'o'],
         ['o', 'x', 'o'],
         ['', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = LMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
@@ -544,11 +556,11 @@ class LMino(Mino):
 
 class TMino(Mino):
     BLOCK_TYPE: Block = Block(7)
-    SHAPE = Grid.from_string_list([
+    SHAPE = Grid.from_string_list(list(reversed([
         ['', 'o', ''],
         ['o', 'x', 'o'],
         ['', '', '']
-    ], BLOCK_TYPE)
+    ])), BLOCK_TYPE)
     def __init__(self) -> None:
         self.current_shape: Grid = TMino.SHAPE
         self.mino3x3: Mino3x3 = Mino3x3()
@@ -635,7 +647,7 @@ class Tetris:
     FIELD_SIZE_Y: int = 20
     NEXT_NUMBER: int = 5
     def __init__(self) -> None:
-        self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y))
+        self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y*2))
         self.current_mino_pile: MinoPile = MinoPile()
         self.next_mino_pile: MinoPile = MinoPile()
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
@@ -654,10 +666,16 @@ class Tetris:
         position_x = position.x
         position_y = position.y
         mino_grid = mino.get_grid().grid
+        mino_grid_size_x = mino.get_grid().get_size().x
+        mino_grid_size_y = mino.get_grid().get_size().y
+        surrounding_grid_size_x = surrounding_grid.get_size().x
+        surrounding_grid_size_y = surrounding_grid.get_size().y
         for y, column in enumerate(mino_grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    if not surrounding_grid.grid[y+position_y][x+position_x].is_empty():
+                    surrounding_grid_x = mino_grid_size_x - (surrounding_grid_size_x - position_x) + x
+                    surrounding_grid_y = mino_grid_size_y - (surrounding_grid_size_y - position_y) + y
+                    if not surrounding_grid.is_empty(Position(surrounding_grid_x, surrounding_grid_y)):
                         return False
         return True
     def move_right(self) -> None:
@@ -679,20 +697,25 @@ class Tetris:
             return
         self.current_mino.position = Position(position.x - 1, position.y)
     def move_down(self) -> None:
-        position = self.current_mino.position
+        position_x = self.current_mino.position.x
+        position_y = self.current_mino.position.y
+        position = Position(position_x, position_y-1)
         size = self.current_mino_size
         new_size = Size(size.x, size.y + 1)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
             return
-        self.current_mino.position = Position(position.x, position.y - 1)
+        self.current_mino.position = Position(position.x, position.y)
     def make_mino(self) -> None:
         self.current_mino = CurrentMino(self.current_mino_pile.pop_mino())
+        self.current_mino_size = self.current_mino.mino.get_size()
         if self.current_mino_pile.is_empty():
             self.current_mino_pile = self.next_mino_pile
             self.next_mino_pile = MinoPile()
-    def is_bottom(self) -> None:
-        position = self.current_mino.position
+    def is_bottom(self) -> bool:
+        position_x = self.current_mino.position.x
+        position_y = self.current_mino.position.y
+        position = Position(position_x, position_y-1)
         size = self.current_mino_size
         new_size = Size(size.x, size.y + 1)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
@@ -700,7 +723,7 @@ class Tetris:
             return True
         return False
     def place_mino(self) -> None:
-        if not self.is_bottom:
+        if not self.is_bottom():
             raise NotBottomException()
         current_mino_grid = self.current_mino.mino.get_grid().grid
         current_x = self.current_mino.position.x
