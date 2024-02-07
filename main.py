@@ -2,6 +2,7 @@ from abc import abstractmethod, ABCMeta
 from typing import Self, ClassVar
 from dataclasses import dataclass, field
 from random import sample
+from copy import deepcopy
 
 @dataclass(frozen=True, eq=True)
 class Block:
@@ -193,21 +194,6 @@ class Mino3x3:
         current_grid: list[list[Block]] = current_shape.grid
         for i in range(3):
             if not current_grid[0][i].is_empty():
-                new_shape.add_block(Position(2, i), block_type)
-        if not current_grid[1][0].is_empty():
-            new_shape.add_block(Position(1, 0), block_type)
-        if not current_grid[1][2].is_empty():
-            new_shape.add_block(Position(1, 2), block_type)
-        for i in range(3):
-            if not current_grid[2][i].is_empty():
-                new_shape.add_block(Position(0, i), block_type)
-        return new_shape
-    def rotate_left(self, current_shape: Grid, block_type: Block) -> Grid:
-        new_shape = Grid(Size(3, 3))
-        new_shape.add_block(Position(1, 1), block_type)
-        current_grid: list[list[Block]] = current_shape.grid
-        for i in range(3):
-            if not current_grid[0][i].is_empty():
                 new_shape.add_block(Position(0, 2-i), block_type)
         if not current_grid[1][0].is_empty():
             new_shape.add_block(Position(1, 2), block_type)
@@ -216,6 +202,21 @@ class Mino3x3:
         for i in range(3):
             if not current_grid[2][i].is_empty():
                 new_shape.add_block(Position(2, 2-i), block_type)
+        return new_shape
+    def rotate_left(self, current_shape: Grid, block_type: Block) -> Grid:
+        new_shape = Grid(Size(3, 3))
+        new_shape.add_block(Position(1, 1), block_type)
+        current_grid: list[list[Block]] = current_shape.grid
+        for i in range(3):
+            if not current_grid[0][i].is_empty():
+                new_shape.add_block(Position(2, i), block_type)
+        if not current_grid[1][0].is_empty():
+            new_shape.add_block(Position(1, 0), block_type)
+        if not current_grid[1][2].is_empty():
+            new_shape.add_block(Position(1, 2), block_type)
+        for i in range(3):
+            if not current_grid[2][i].is_empty():
+                new_shape.add_block(Position(0, i), block_type)
         return new_shape
     def super_rotate(
             self,
@@ -732,3 +733,55 @@ class Tetris:
             for x, block in enumerate(column):
                 if not block.is_empty():
                     self.main_field.add_block(Position(current_x + x, current_y + y), block)
+    def rotate_right(self) -> None:
+        position_x = self.current_mino.position.x
+        position_y = self.current_mino.position.y
+        position = Position(position_x - 1, position_y - 1)
+        size = self.current_mino_size
+        new_size = Size(size.x + 2, size.y + 2)
+        surrounding_grid = self.main_field.plot_grid(position, new_size)
+        previous_direction = self.current_mino.mino.get_direction()
+        mino = deepcopy(self.current_mino.mino)
+        mino.rotate_right()
+        current_direction = mino.get_direction()
+        if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
+            self.current_mino.mino = mino
+            return
+        steps = [SuperRotationStep(i) for i in range(4)]
+        current_relative_position = RelativePosition(0, 0)
+        for current_step in steps:
+            current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
+            current_position_x = current_relative_position.x + position_x
+            current_position_y = current_relative_position.y + position_y
+            new_position = PlotGridPosition(current_position_x, current_position_y)
+            if self._can_move(surrounding_grid, mino, new_position):
+                self.current_mino.mino = mino
+                self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
+                return
+        return
+    def rotate_left(self) -> None:
+        position_x = self.current_mino.position.x
+        position_y = self.current_mino.position.y
+        position = Position(position_x - 1, position_y - 1)
+        size = self.current_mino_size
+        new_size = Size(size.x + 2, size.y + 2)
+        surrounding_grid = self.main_field.plot_grid(position, new_size)
+        previous_direction = self.current_mino.mino.get_direction()
+        mino = deepcopy(self.current_mino.mino)
+        mino.rotate_left()
+        current_direction = mino.get_direction()
+        if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
+            self.current_mino.mino = mino
+            return
+        steps = [SuperRotationStep(i) for i in range(4)]
+        current_relative_position = RelativePosition(0, 0)
+        for current_step in steps:
+            current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
+            current_position_x = current_relative_position.x + position_x
+            current_position_y = current_relative_position.y + position_y
+            new_position = PlotGridPosition(current_position_x, current_position_y)
+            if self._can_move(surrounding_grid, mino, new_position):
+                self.current_mino.mino = mino
+                self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
+                return
+        return

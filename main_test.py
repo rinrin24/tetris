@@ -36,6 +36,10 @@ for i in range(7):
     tetris.move_right()
     print(tetris.current_mino.position)
     print(repr_grid(tetris.main_field, tetris.current_mino))
+
+tetris.rotate_right()
+print(repr_grid(tetris.main_field, tetris.current_mino))
+print(tetris.current_mino.mino.get_direction())
 #print(repr_grid(tetris.main_field, tetris.current_mino))
 
 
