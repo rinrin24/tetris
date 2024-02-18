@@ -761,9 +761,9 @@ class Tetris:
     def rotate_left(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
-        position = Position(position_x - 1, position_y - 1)
+        position = Position(position_x - 2, position_y - 2)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y + 2)
+        new_size = Size(size.x + 4, size.y + 4)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         previous_direction = self.current_mino.mino.get_direction()
         mino = deepcopy(self.current_mino.mino)
@@ -776,8 +776,8 @@ class Tetris:
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
             current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
-            current_position_x = current_relative_position.x + position_x
-            current_position_y = current_relative_position.y + position_y
+            current_position_x = 2+current_relative_position.x
+            current_position_y = 2+current_relative_position.y
             new_position = PlotGridPosition(current_position_x, current_position_y)
             if self._can_move(surrounding_grid, mino, new_position):
                 self.current_mino.mino = mino
