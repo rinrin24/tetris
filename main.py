@@ -818,11 +818,11 @@ class Tetris:
                 self.last_action = LastTetrisAction(True, current_step)
                 return
         return
-    def hard_drop(self) -> None:
+    def hard_drop(self) -> ClearResult:
         while(not self.is_bottom()):
             self.move_down()
         self.last_action = LastTetrisAction(True, SuperRotationStep(0))
-        self.place_mino()
+        return self.place_mino()
     def hold(self) -> None:
         if self.hold_mino == EmptyMino():
             self.hold_mino = self.current_mino.mino
