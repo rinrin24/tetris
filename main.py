@@ -615,6 +615,10 @@ class EmptyMino(Mino):
             current_relative_position: RelativePosition
         ) -> RelativePosition:
         return RelativePosition(0, 0)
+    def __eq__(self, __value: object) -> bool:
+        if __value is None or not isinstance(__value, EmptyMino):
+            return False
+        return True
 
 @dataclass(slots=True)
 class CurrentMino:
@@ -654,6 +658,7 @@ class Tetris:
         self.next_mino_pile: MinoPile = MinoPile()
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
         self.current_mino_size: Size = self.current_mino.mino.get_size()
+        self.hold_mino: Mino = EmptyMino()
     def _can_move(self, surrounding_grid: Grid, mino: Mino, position: PlotGridPosition) -> bool:
         """whether mino can move in surrounding grid
 
@@ -788,3 +793,11 @@ class Tetris:
         while(not self.is_bottom()):
             self.move_down()
         self.place_mino()
+    def hold(self) -> None:
+        if self.hold_mino == EmptyMino():
+            self.hold_mino = self.current_mino.mino
+            self.make_mino()
+            return
+        current_mino = self.current_mino.mino
+        self.current_mino = CurrentMino(self.hold_mino)
+        self.hold_mino = current_mino
