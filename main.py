@@ -758,11 +758,12 @@ class Tetris:
             for x, block in enumerate(column):
                 if not block.is_empty():
                     self.main_field.add_block(Position(current_x + x, current_y + y), block)
-        self.make_mino()
-        return self._clear_line(
+        result = self._clear_line(
             self.current_mino.mino,
             self.main_field.plot_grid(self.current_mino.position, self.current_mino_size)
         )
+        self.make_mino()
+        return result
     def rotate_right(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
@@ -851,22 +852,22 @@ class Tetris:
             mino_direction = current_mino.get_direction()
             if self.last_action.is_rotate():
                 # check 4 corners of t-mino
-                surround_block_num = 0
+                surround_block_num = 4
                 top_is_empty = False
-                if not surrounding_grid.grid[0][0].is_empty():
-                    surround_block_num += 1
+                if surrounding_grid.is_empty(Position(0, 0)):
+                    surround_block_num -= 1
                     top_is_empty = (mino_direction == Direction.C() or
                                     mino_direction == Direction.D())
-                if not surrounding_grid.grid[2][0].is_empty():
-                    surround_block_num += 1
+                if surrounding_grid.is_empty(Position(2, 0)):
+                    surround_block_num -= 1
                     top_is_empty = (mino_direction == Direction.B() or
                                     mino_direction == Direction.C())
-                if not surrounding_grid.grid[0][2].is_empty():
-                    surround_block_num += 1
+                if surrounding_grid.is_empty(Position(0, 2)):
+                    surround_block_num -= 1
                     top_is_empty = (mino_direction == Direction.A() or
                                     mino_direction == Direction.D())
-                if not surrounding_grid.grid[2][2].is_empty():
-                    surround_block_num += 1
+                if surrounding_grid.is_empty(Position(2, 2)):
+                    surround_block_num -= 1
                     top_is_empty = (mino_direction == Direction.A() or
                                     mino_direction == Direction.B())
                 if surround_block_num >= 3:
