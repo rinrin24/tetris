@@ -32,11 +32,19 @@ print(repr_grid(tetris.main_field, tetris.current_mino))
 tetris.make_mino()
 
 print(repr_grid(tetris.main_field, tetris.current_mino))
+
+print('move down')
+
 for i in range(7):
     tetris.move_right()
     print(tetris.current_mino.position)
     print(repr_grid(tetris.main_field, tetris.current_mino))
 
+for i in range(19):
+    tetris.move_down()
+    print(repr_grid(tetris.main_field, tetris.current_mino))
+
+print(repr_grid(tetris.main_field, tetris.current_mino))
 tetris.rotate_right()
 print(repr_grid(tetris.main_field, tetris.current_mino))
 print(tetris.current_mino.mino.get_direction())

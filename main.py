@@ -8,7 +8,7 @@ from copy import deepcopy
 class Block:
     _block_type: int
     EMPTY_NUMBER: ClassVar[int] = 0
-    WALL_NUMBER: ClassVar[int] = -1
+    WALL_NUMBER: ClassVar[int] = 9
     @classmethod
     def EMPTY(cls) -> Self:
         return cls(Block.EMPTY_NUMBER)
@@ -151,7 +151,8 @@ class Grid:
         return Size(len(self.grid[0]), len(self.grid))
     def __repr__(self) -> str:
         return_string = '[\n'
-        for line_number, column in enumerate(reversed(self.grid)):
+        # for line_number, column in enumerate(reversed(self.grid)):
+        for line_number, column in enumerate(self.grid):
             return_string += f'  {str(line_number).zfill(3)}[ '
             for block in column:
                 if block.is_empty():
@@ -273,22 +274,22 @@ class IMino(Mino):
     def __init__(self) -> None:
         self.current_shape: Grid = IMino.SHAPE
         self.current_direction: Direction = Direction.A()
-    def rotate_right(self) -> None:
+    def rotate_left(self) -> None:
         new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
                     new_shape.add_block(Position(3-j, i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
-        self.current_direction = self.current_direction.rotate_right()
-    def rotate_left(self) -> None:
+        self.current_direction = self.current_direction.rotate_left()
+    def rotate_right(self) -> None:
         new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
                     new_shape.add_block(Position(j, 3-i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
-        self.current_direction = self.current_direction.rotate_left()
+        self.current_direction = self.current_direction.rotate_right()
     def get_grid(self) -> Grid:
         return self.current_shape
     def get_size(self) -> Size:
@@ -667,15 +668,13 @@ class Tetris:
         position_x = position.x
         position_y = position.y
         mino_grid = mino.get_grid().grid
-        mino_grid_size_x = mino.get_grid().get_size().x
         mino_grid_size_y = mino.get_grid().get_size().y
-        surrounding_grid_size_x = surrounding_grid.get_size().x
         surrounding_grid_size_y = surrounding_grid.get_size().y
         for y, column in enumerate(mino_grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    surrounding_grid_x = mino_grid_size_x - (surrounding_grid_size_x - position_x) + x
-                    surrounding_grid_y = mino_grid_size_y - (surrounding_grid_size_y - position_y) + y
+                    surrounding_grid_x = position_x + x
+                    surrounding_grid_y = surrounding_grid_size_y - (mino_grid_size_y + position_y) + y
                     if not surrounding_grid.is_empty(Position(surrounding_grid_x, surrounding_grid_y)):
                         return False
         return True
@@ -685,7 +684,7 @@ class Tetris:
         size = self.current_mino_size
         new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
-        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(2, 0)):
+        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(1, 0)):
             return
         self.current_mino.position = Position(position.x + 1, position.y)
     def move_left(self) -> None:
@@ -736,9 +735,9 @@ class Tetris:
     def rotate_right(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
-        position = Position(position_x - 1, position_y - 1)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y + 2)
+        position = Position(position_x - 2, position_y - 2)
+        new_size = Size(size.x + 4, size.y + 4)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         previous_direction = self.current_mino.mino.get_direction()
         mino = deepcopy(self.current_mino.mino)
@@ -751,8 +750,8 @@ class Tetris:
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
             current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
-            current_position_x = current_relative_position.x + position_x
-            current_position_y = current_relative_position.y + position_y
+            current_position_x = 2+current_relative_position.x
+            current_position_y = 2+current_relative_position.y
             new_position = PlotGridPosition(current_position_x, current_position_y)
             if self._can_move(surrounding_grid, mino, new_position):
                 self.current_mino.mino = mino
