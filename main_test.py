@@ -239,3 +239,39 @@ tetris.move_left()
 result = tetris.hard_drop()
 print(result)
 print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
+
+#I
+for i in range(2):
+    tetris.move_right()
+tetris.hard_drop()
+print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
+
+#O
+for i in range(4):
+    tetris.move_left()
+tetris.hard_drop()
+print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
+
+#S
+tetris.move_left()
+tetris.hard_drop()
+print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
+
+#Z
+tetris.rotate_left()
+tetris.move_left()
+tetris.move_left()
+tetris.hard_drop()
+print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
+
+#J
+tetris.hold()
+#T
+for i in range(3):
+    tetris.move_right()
+for i in range(18):
+    tetris.move_down()
+tetris.rotate_left()
+result = tetris.place_mino()
+print(result)
+print(repr_grid(tetris.main_field, tetris.current_mino, tetris.hold_mino))
