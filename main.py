@@ -758,6 +758,7 @@ class Tetris:
             for x, block in enumerate(column):
                 if not block.is_empty():
                     self.main_field.add_block(Position(current_x + x, current_y + y), block)
+        self.make_mino()
         return self._clear_line(
             self.current_mino.mino,
             self.main_field.plot_grid(self.current_mino.position, self.current_mino_size)
