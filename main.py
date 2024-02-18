@@ -784,3 +784,7 @@ class Tetris:
                 self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
                 return
         return
+    def hard_drop(self) -> None:
+        while(not self.is_bottom()):
+            self.move_down()
+        self.place_mino()
