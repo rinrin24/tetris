@@ -800,4 +800,5 @@ class Tetris:
             return
         current_mino = self.current_mino.mino
         self.current_mino = CurrentMino(self.hold_mino)
+        self.current_mino_size = self.current_mino.mino.get_size()
         self.hold_mino = current_mino
