@@ -8,7 +8,7 @@ from copy import deepcopy
 class Block:
     _block_type: int
     EMPTY_NUMBER: ClassVar[int] = 0
-    WALL_NUMBER: ClassVar[int] = -1
+    WALL_NUMBER: ClassVar[int] = 9
     @classmethod
     def EMPTY(cls) -> Self:
         return cls(Block.EMPTY_NUMBER)
@@ -151,7 +151,8 @@ class Grid:
         return Size(len(self.grid[0]), len(self.grid))
     def __repr__(self) -> str:
         return_string = '[\n'
-        for line_number, column in enumerate(reversed(self.grid)):
+        # for line_number, column in enumerate(reversed(self.grid)):
+        for line_number, column in enumerate(self.grid):
             return_string += f'  {str(line_number).zfill(3)}[ '
             for block in column:
                 if block.is_empty():
@@ -273,22 +274,22 @@ class IMino(Mino):
     def __init__(self) -> None:
         self.current_shape: Grid = IMino.SHAPE
         self.current_direction: Direction = Direction.A()
-    def rotate_right(self) -> None:
+    def rotate_left(self) -> None:
         new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
                     new_shape.add_block(Position(3-j, i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
-        self.current_direction = self.current_direction.rotate_right()
-    def rotate_left(self) -> None:
+        self.current_direction = self.current_direction.rotate_left()
+    def rotate_right(self) -> None:
         new_shape = Grid(Size(4, 4))
         for i in range(4):
             for j in range(4):
                 if not self.current_shape.grid[j][i].is_empty():
                     new_shape.add_block(Position(j, 3-i), IMino.BLOCK_TYPE)
         self.current_shape = new_shape
-        self.current_direction = self.current_direction.rotate_left()
+        self.current_direction = self.current_direction.rotate_right()
     def get_grid(self) -> Grid:
         return self.current_shape
     def get_size(self) -> Size:
@@ -614,6 +615,10 @@ class EmptyMino(Mino):
             current_relative_position: RelativePosition
         ) -> RelativePosition:
         return RelativePosition(0, 0)
+    def __eq__(self, __value: object) -> bool:
+        if __value is None or not isinstance(__value, EmptyMino):
+            return False
+        return True
 
 @dataclass(slots=True)
 class CurrentMino:
@@ -630,6 +635,7 @@ class MinoPile:
     def __init__(self) -> None:
         mino_pile: list[Mino] = [IMino(), OMino(), SMino(), ZMino(), JMino(), LMino(), TMino()]
         self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
+        self.pile = mino_pile
     def pop_mino(self) -> Mino:
         if self.is_empty():
             raise EmptyMinoPileException()
@@ -642,6 +648,22 @@ class MinoPile:
 class NotBottomException(Exception):
     pass
 
+@dataclass(frozen=True, slots=True)
+class ClearResult:
+    t_spin: bool
+    t_spin_mini: bool
+    perfect_clear: bool
+    clear_line: int
+
+@dataclass(frozen=True, slots=True)
+class LastTetrisAction:
+    _rotate: bool
+    _super_rotation_step: SuperRotationStep
+    def is_rotate(self) -> bool:
+        return self._rotate
+    def super_rotation_step(self) -> SuperRotationStep:
+        return self._super_rotation_step
+    
 class Tetris:
     INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
     FIELD_SIZE_X: int = 10
@@ -653,6 +675,8 @@ class Tetris:
         self.next_mino_pile: MinoPile = MinoPile()
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
         self.current_mino_size: Size = self.current_mino.mino.get_size()
+        self.hold_mino: Mino = EmptyMino()
+        self.last_action = LastTetrisAction(False, SuperRotationStep(0))
     def _can_move(self, surrounding_grid: Grid, mino: Mino, position: PlotGridPosition) -> bool:
         """whether mino can move in surrounding grid
 
@@ -667,15 +691,13 @@ class Tetris:
         position_x = position.x
         position_y = position.y
         mino_grid = mino.get_grid().grid
-        mino_grid_size_x = mino.get_grid().get_size().x
         mino_grid_size_y = mino.get_grid().get_size().y
-        surrounding_grid_size_x = surrounding_grid.get_size().x
         surrounding_grid_size_y = surrounding_grid.get_size().y
         for y, column in enumerate(mino_grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    surrounding_grid_x = mino_grid_size_x - (surrounding_grid_size_x - position_x) + x
-                    surrounding_grid_y = mino_grid_size_y - (surrounding_grid_size_y - position_y) + y
+                    surrounding_grid_x = position_x + x
+                    surrounding_grid_y = surrounding_grid_size_y - (mino_grid_size_y + position_y) + y
                     if not surrounding_grid.is_empty(Position(surrounding_grid_x, surrounding_grid_y)):
                         return False
         return True
@@ -685,9 +707,10 @@ class Tetris:
         size = self.current_mino_size
         new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
-        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(2, 0)):
+        if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(1, 0)):
             return
         self.current_mino.position = Position(position.x + 1, position.y)
+        self.last_action = LastTetrisAction(False, SuperRotationStep(0))
     def move_left(self) -> None:
         position = self.current_mino.position
         new_position = Position(position.x - 1, position.y)
@@ -697,6 +720,7 @@ class Tetris:
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 0)):
             return
         self.current_mino.position = Position(position.x - 1, position.y)
+        self.last_action = LastTetrisAction(False, SuperRotationStep(0))
     def move_down(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
@@ -707,6 +731,7 @@ class Tetris:
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
             return
         self.current_mino.position = Position(position.x, position.y)
+        self.last_action = LastTetrisAction(False, SuperRotationStep(0))
     def make_mino(self) -> None:
         self.current_mino = CurrentMino(self.current_mino_pile.pop_mino())
         self.current_mino_size = self.current_mino.mino.get_size()
@@ -723,7 +748,7 @@ class Tetris:
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
             return True
         return False
-    def place_mino(self) -> None:
+    def place_mino(self) -> ClearResult:
         if not self.is_bottom():
             raise NotBottomException()
         current_mino_grid = self.current_mino.mino.get_grid().grid
@@ -733,12 +758,16 @@ class Tetris:
             for x, block in enumerate(column):
                 if not block.is_empty():
                     self.main_field.add_block(Position(current_x + x, current_y + y), block)
+        return self._clear_line(
+            self.current_mino.mino,
+            self.main_field.plot_grid(self.current_mino.position, self.current_mino_size)
+        )
     def rotate_right(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
-        position = Position(position_x - 1, position_y - 1)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y + 2)
+        position = Position(position_x - 2, position_y - 2)
+        new_size = Size(size.x + 4, size.y + 4)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         previous_direction = self.current_mino.mino.get_direction()
         mino = deepcopy(self.current_mino.mino)
@@ -746,25 +775,27 @@ class Tetris:
         current_direction = mino.get_direction()
         if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
             self.current_mino.mino = mino
+            self.last_action = LastTetrisAction(True, SuperRotationStep(0))
             return
         steps = [SuperRotationStep(i) for i in range(4)]
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
             current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
-            current_position_x = current_relative_position.x + position_x
-            current_position_y = current_relative_position.y + position_y
+            current_position_x = 2+current_relative_position.x
+            current_position_y = 2+current_relative_position.y
             new_position = PlotGridPosition(current_position_x, current_position_y)
             if self._can_move(surrounding_grid, mino, new_position):
                 self.current_mino.mino = mino
                 self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
+                self.last_action = LastTetrisAction(True, current_step)
                 return
         return
     def rotate_left(self) -> None:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
-        position = Position(position_x - 1, position_y - 1)
+        position = Position(position_x - 2, position_y - 2)
         size = self.current_mino_size
-        new_size = Size(size.x + 2, size.y + 2)
+        new_size = Size(size.x + 4, size.y + 4)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         previous_direction = self.current_mino.mino.get_direction()
         mino = deepcopy(self.current_mino.mino)
@@ -772,16 +803,79 @@ class Tetris:
         current_direction = mino.get_direction()
         if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
             self.current_mino.mino = mino
+            self.last_action = LastTetrisAction(True, SuperRotationStep(0))
             return
         steps = [SuperRotationStep(i) for i in range(4)]
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
             current_relative_position = mino.super_rotate(current_direction, previous_direction, current_step, current_relative_position)
-            current_position_x = current_relative_position.x + position_x
-            current_position_y = current_relative_position.y + position_y
+            current_position_x = 2+current_relative_position.x
+            current_position_y = 2+current_relative_position.y
             new_position = PlotGridPosition(current_position_x, current_position_y)
             if self._can_move(surrounding_grid, mino, new_position):
                 self.current_mino.mino = mino
                 self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
+                self.last_action = LastTetrisAction(True, current_step)
                 return
         return
+    def hard_drop(self) -> None:
+        while(not self.is_bottom()):
+            self.move_down()
+        self.last_action = LastTetrisAction(True, SuperRotationStep(0))
+        self.place_mino()
+    def hold(self) -> None:
+        if self.hold_mino == EmptyMino():
+            self.hold_mino = self.current_mino.mino
+            self.make_mino()
+            return
+        current_mino = self.current_mino.mino
+        self.current_mino = CurrentMino(self.hold_mino)
+        self.current_mino_size = self.current_mino.mino.get_size()
+        self.hold_mino = current_mino
+    def _clear_line(self, current_mino: Mino, surrounding_grid: Grid) -> ClearResult:
+        delete_line = 0
+        i = 0
+        current_grid = self.main_field.grid
+        while i < len(current_grid):
+            current_line = current_grid[i]
+            if all([not block.is_empty() for block in current_line]):
+                del current_grid[i]
+                current_grid.append([Block.EMPTY() for i in range(Tetris.FIELD_SIZE_X)])
+                delete_line += 1
+            else:
+                i += 1
+        is_t_spin = False
+        is_t_spin_mini = False
+        if isinstance(current_mino, TMino):
+            mino_direction = current_mino.get_direction()
+            if self.last_action.is_rotate():
+                # check 4 corners of t-mino
+                surround_block_num = 0
+                top_is_empty = False
+                if not surrounding_grid.grid[0][0].is_empty():
+                    surround_block_num += 1
+                    top_is_empty = (mino_direction == Direction.C() or
+                                    mino_direction == Direction.D())
+                if not surrounding_grid.grid[2][0].is_empty():
+                    surround_block_num += 1
+                    top_is_empty = (mino_direction == Direction.B() or
+                                    mino_direction == Direction.C())
+                if not surrounding_grid.grid[0][2].is_empty():
+                    surround_block_num += 1
+                    top_is_empty = (mino_direction == Direction.A() or
+                                    mino_direction == Direction.D())
+                if not surrounding_grid.grid[2][2].is_empty():
+                    surround_block_num += 1
+                    top_is_empty = (mino_direction == Direction.A() or
+                                    mino_direction == Direction.B())
+                if surround_block_num >= 3:
+                    if top_is_empty and self.last_action.super_rotation_step().step != 3:
+                        is_t_spin_mini = True
+                    else:
+                        is_t_spin = True
+        is_perfect_clear = True
+        for column in self.main_field.grid:
+            for block in column:
+                if not block.is_empty():
+                    is_perfect_clear = False
+        return ClearResult(is_t_spin, is_t_spin_mini, is_perfect_clear, delete_line)
