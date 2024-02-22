@@ -29,6 +29,9 @@ class App:
     def draw(self): # 描画処理
         pyxel.cls(0)
         pyxel.blt(10, 10, 0, 0, 0, 16, 16)
+        self.draw_main_field()
+
+    def draw_main_field(self):
         grid_position = {'x': 160, 'y': 16,}
         new_grid = copy.deepcopy(self.tetris.main_field)
         mino_position_x = self.tetris.current_mino.position.x
