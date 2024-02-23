@@ -1,7 +1,7 @@
 import copy
 import pyxel
 from typing import ClassVar
-from main import Tetris, Position
+from main import Tetris, Position, EmptyMino
 
 class App:
     NEXT_NUMBER: ClassVar[int] = 5
@@ -33,6 +33,7 @@ class App:
         pyxel.blt(10, 10, 0, 0, 0, 16, 16)
         self.draw_main_field()
         self.draw_next()
+        self.draw_hold()
 
     def draw_main_field(self):
         grid_position = {'x': 160, 'y': 16,}
@@ -81,5 +82,23 @@ class App:
                             16,
                             16
                             )
+    def draw_hold(self):
+        grid_position = {'x': 80, 'y': 32,}
+        hold_mino = self.tetris.hold_mino
+        if hold_mino == EmptyMino():
+            return
+        for y, column in enumerate(reversed(hold_mino.get_grid().grid)):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    block_type = block._block_type
+                    pyxel.blt(
+                        grid_position['x']+x*16,
+                        grid_position['y']+y*16,
+                        0,
+                        (block_type % 4)*16,
+                        (block_type // 4)*16,
+                        16,
+                        16
+                        )
 
 App()
