@@ -13,9 +13,9 @@ class App:
         pyxel.run(self.update, self.draw) # アプリケーションの実行
 
     def update(self): # フレームの更新処理
-        if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=3):
+        if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=2):
             self.tetris.move_right()
-        if pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.KEY_LEFT, hold=12, repeat=3):
+        if pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.KEY_LEFT, hold=12, repeat=2):
             self.tetris.move_left()
         if pyxel.btnp(pyxel.KEY_DOWN, hold=1, repeat=5):
             self.tetris.move_down()
