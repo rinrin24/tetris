@@ -68,7 +68,7 @@ class RelativePosition:
 @dataclass(frozen=True, slots=True, eq=True)
 class Direction:
     """the direction of mino
-    
+
     Note:
         direction numbers are defined from page under
         https://tetrisch.github.io/main/srs.html
@@ -663,7 +663,7 @@ class LastTetrisAction:
         return self._rotate
     def super_rotation_step(self) -> SuperRotationStep:
         return self._super_rotation_step
-    
+
 class Tetris:
     INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
     FIELD_SIZE_X: int = 10
