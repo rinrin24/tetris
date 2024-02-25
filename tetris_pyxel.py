@@ -39,15 +39,20 @@ class App:
 
     def update(self): # フレームの更新処理
         if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=2):
-            self.tetris.move_right()
+            if self.tetris.move_right():
+                self.reset_time()
         if pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.KEY_LEFT, hold=12, repeat=2):
-            self.tetris.move_left()
+            if self.tetris.move_left():
+                self.reset_time()
         if pyxel.btnp(pyxel.KEY_DOWN, hold=1, repeat=5):
-            self.tetris.move_down()
+            if self.tetris.move_down():
+                self.reset_time()
         if pyxel.btnp(pyxel.KEY_Z):
-            self.tetris.rotate_left()
+            if self.tetris.rotate_left():
+                self.reset_time()
         if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.KEY_UP):
-            self.tetris.rotate_right()
+            if self.tetris.rotate_right():
+                self.reset_time()
         if pyxel.btnp(pyxel.KEY_C):
             self.tetris.hold()
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -69,9 +74,7 @@ class App:
                 self.drop_timer = DropTimer(_speed=self.speed)
         if self.drop_timer.should_drop():
             self.drop_timer = DropTimer(_speed=self.speed)
-            if self.tetris.is_bottom():
-                self.tetris.place_mino()
-            else:
+            if not self.tetris.is_bottom():
                 self.tetris.move_down()
         else:
             self.drop_timer = DropTimer(self.drop_timer.timer+1, self.speed)
@@ -91,12 +94,18 @@ class App:
                            ):
                         return True
         return False
+    def reset_time(self) -> None:
+        self.drop_timer = DropTimer(_speed=self.speed)
+        if self.tetris.is_bottom():
+            self.delay = DropDelay(reset_count=self.delay.reset_count+1)
     def draw(self): # 描画処理
         pyxel.cls(0)
         pyxel.blt(10, 10, 0, 0, 0, 16, 16)
         self.draw_main_field()
         self.draw_next()
         self.draw_hold()
+        pyxel.text(0, 0, f'{self.drop_timer.timer}/{self.drop_timer.drop_period}, {self.drop_timer.should_drop()}', 7)
+        pyxel.text(0, 20, f'{self.delay.timer}, {self.delay.reset_count}, {self.delay.should_place()}', 7)
 
     def draw_main_field(self):
         grid_position = {'x': 160, 'y': 16,}
