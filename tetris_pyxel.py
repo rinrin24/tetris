@@ -2,7 +2,7 @@ import copy
 import pyxel
 from dataclasses import dataclass, field
 from typing import ClassVar
-from main import Tetris, Position, EmptyMino
+from main import Tetris, Position, EmptyMino, Block
 
 @dataclass(frozen=True, slots=True)
 class DropTimer:
@@ -89,6 +89,15 @@ class App:
         mino_position_x = self.tetris.current_mino.position.x
         mino_position_y = self.tetris.current_mino.position.y
         mino_grid = self.tetris.current_mino.mino.get_grid().grid
+        # add ghost block
+        for y, column in enumerate(mino_grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    ghost_block_position = self.tetris.get_ghost_block()
+                    new_grid.add_block(
+                        Position(ghost_block_position.x+x, ghost_block_position.y+y),
+                        Block(block._block_type+8)
+                        )
         for y, column in enumerate(mino_grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
