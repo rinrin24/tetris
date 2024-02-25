@@ -705,27 +705,29 @@ class Tetris:
                     if not surrounding_grid.is_empty(Position(surrounding_grid_x, surrounding_grid_y)):
                         return False
         return True
-    def move_right(self) -> None:
+    def move_right(self) -> bool:
         position = self.current_mino.position
         new_position = Position(position.x, position.y)
         size = self.current_mino_size
         new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(1, 0)):
-            return
+            return False
         self.current_mino.position = Position(position.x + 1, position.y)
         self.last_action = LastTetrisAction(False, SuperRotationStep(0))
-    def move_left(self) -> None:
+        return True
+    def move_left(self) -> bool:
         position = self.current_mino.position
         new_position = Position(position.x - 1, position.y)
         size = self.current_mino_size
         new_size = Size(size.x + 1, size.y)
         surrounding_grid = self.main_field.plot_grid(new_position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 0)):
-            return
+            return False
         self.current_mino.position = Position(position.x - 1, position.y)
         self.last_action = LastTetrisAction(False, SuperRotationStep(0))
-    def move_down(self) -> None:
+        return True
+    def move_down(self) -> bool:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
         position = Position(position_x, position_y-1)
@@ -733,9 +735,10 @@ class Tetris:
         new_size = Size(size.x, size.y + 1)
         surrounding_grid = self.main_field.plot_grid(position, new_size)
         if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
-            return
+            return False
         self.current_mino.position = Position(position.x, position.y)
         self.last_action = LastTetrisAction(False, SuperRotationStep(0))
+        return True
     def make_mino(self) -> None:
         self.current_mino = CurrentMino(self.current_mino_pile.pop_mino())
         self.current_mino_size = self.current_mino.mino.get_size()
@@ -768,7 +771,7 @@ class Tetris:
         )
         self.make_mino()
         return result
-    def rotate_right(self) -> None:
+    def rotate_right(self) -> bool:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
         size = self.current_mino_size
@@ -782,7 +785,7 @@ class Tetris:
         if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
             self.current_mino.mino = mino
             self.last_action = LastTetrisAction(True, SuperRotationStep(0))
-            return
+            return True
         steps = [SuperRotationStep(i) for i in range(4)]
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
@@ -794,9 +797,9 @@ class Tetris:
                 self.current_mino.mino = mino
                 self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
                 self.last_action = LastTetrisAction(True, current_step)
-                return
-        return
-    def rotate_left(self) -> None:
+                return True
+        return False
+    def rotate_left(self) -> bool:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
         position = Position(position_x - 2, position_y - 2)
@@ -810,7 +813,7 @@ class Tetris:
         if self._can_move(surrounding_grid, mino, PlotGridPosition(2, 2)):
             self.current_mino.mino = mino
             self.last_action = LastTetrisAction(True, SuperRotationStep(0))
-            return
+            return True
         steps = [SuperRotationStep(i) for i in range(4)]
         current_relative_position = RelativePosition(0, 0)
         for current_step in steps:
@@ -822,8 +825,8 @@ class Tetris:
                 self.current_mino.mino = mino
                 self.current_mino.position = Position(self.current_mino.position.x + current_relative_position.x, self.current_mino.position.y - current_relative_position.y)
                 self.last_action = LastTetrisAction(True, current_step)
-                return
-        return
+                return True
+        return False
     def hard_drop(self) -> ClearResult:
         while(not self.is_bottom()):
             self.move_down()
