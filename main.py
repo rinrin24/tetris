@@ -665,7 +665,7 @@ class LastTetrisAction:
         return self._super_rotation_step
 
 class Tetris:
-    INITIAL_POSITION: CenterPosition = CenterPosition(5, 19)
+    INITIAL_POSITION: CenterPosition = CenterPosition(5, 21)
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
     NEXT_NUMBER: int = 5
@@ -842,7 +842,7 @@ class Tetris:
         current_position = self.current_mino.position
         position = current_position
         surrounding_grid_size = Size(self.current_mino_size.x, self.current_mino_size.y+1)
-        for i in range(Tetris.FIELD_SIZE_Y):
+        for i in range(Tetris.FIELD_SIZE_Y*2):
             position = Position(current_position.x, current_position.y-i)
             surrounding_grid = self.main_field.plot_grid(position, surrounding_grid_size)
             if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
