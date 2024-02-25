@@ -75,7 +75,22 @@ class App:
                 self.tetris.move_down()
         else:
             self.drop_timer = DropTimer(self.drop_timer.timer+1, self.speed)
-
+    def is_game_over(self) -> bool:
+        for y, column in enumerate(self.tetris.main_field.grid):
+            for x, block in enumerate(column):
+                if not block.is_empty():
+                    current_position = Position(x, y)
+                    if (current_position == Position(3, 20) or
+                           current_position == Position(4, 20) or
+                           current_position == Position(5, 20) or
+                           current_position == Position(6, 20) or
+                           current_position == Position(3, 21) or
+                           current_position == Position(4, 21) or
+                           current_position == Position(5, 21) or
+                           current_position == Position(6, 21)
+                           ):
+                        return True
+        return False
     def draw(self): # 描画処理
         pyxel.cls(0)
         pyxel.blt(10, 10, 0, 0, 0, 16, 16)
@@ -103,9 +118,9 @@ class App:
                 if not block.is_empty():
                     new_grid.add_block(Position(mino_position_x+x, mino_position_y+y), block)
         for y, column in enumerate(reversed(new_grid.grid)):
-            if y <= 19:
-                continue
             for x, block in enumerate(column):
+                if block.is_empty() and y <= 19:
+                    continue
                 block_type = block._block_type
                 pyxel.blt(
                     grid_position['x']+x*16,
