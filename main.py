@@ -834,6 +834,17 @@ class Tetris:
         self.current_mino = CurrentMino(self.hold_mino)
         self.current_mino_size = self.current_mino.mino.get_size()
         self.hold_mino = current_mino
+    def get_ghost_block(self) -> Position:
+        current_position = self.current_mino.position
+        position = current_position
+        surrounding_grid_size = Size(self.current_mino_size.x, self.current_mino_size.y+1)
+        for i in range(Tetris.FIELD_SIZE_Y):
+            position = Position(current_position.x, current_position.y-i)
+            surrounding_grid = self.main_field.plot_grid(position, surrounding_grid_size)
+            if not self._can_move(surrounding_grid, self.current_mino.mino, PlotGridPosition(0, 1)):
+                position = Position(current_position.x, current_position.y-i+1)
+                break
+        return Position(position.x, position.y)
     def _clear_line(self, current_mino: Mino, surrounding_grid: Grid) -> ClearResult:
         delete_line = 0
         i = 0
