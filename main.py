@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABCMeta
 from typing import Self, ClassVar
 from dataclasses import dataclass, field
-from random import sample
+from random import sample, Random
 from copy import deepcopy
 
 @dataclass(frozen=True, eq=True)
@@ -632,10 +632,10 @@ class EmptyMinoPileException(Exception):
     pass
 
 class MinoPile:
-    def __init__(self) -> None:
+    def __init__(self, random_generator: Random) -> None:
+        self.random_generator = random_generator
         mino_pile: list[Mino] = [IMino(), OMino(), SMino(), ZMino(), JMino(), LMino(), TMino()]
-        self.pile: list[Mino] = sample(mino_pile, len(mino_pile))
-        self.pile = mino_pile
+        self.pile: list[Mino] = self.random_generator.sample(mino_pile, len(mino_pile))
     def pop_mino(self) -> Mino:
         if self.is_empty():
             raise EmptyMinoPileException()
@@ -669,10 +669,14 @@ class Tetris:
     FIELD_SIZE_X: int = 10
     FIELD_SIZE_Y: int = 20
     NEXT_NUMBER: int = 5
-    def __init__(self) -> None:
+    def __init__(self, random_seed: int | None = None) -> None:
+        if not random_seed is None:
+            self.random_generator = Random(random_seed)
+        else:
+            self.random_generator = Random()
         self.main_field: Grid = Grid(Size(Tetris.FIELD_SIZE_X, Tetris.FIELD_SIZE_Y*2))
-        self.current_mino_pile: MinoPile = MinoPile()
-        self.next_mino_pile: MinoPile = MinoPile()
+        self.current_mino_pile: MinoPile = MinoPile(self.random_generator)
+        self.next_mino_pile: MinoPile = MinoPile(self.random_generator)
         self.current_mino: CurrentMino = CurrentMino(EmptyMino())
         self.current_mino_size: Size = self.current_mino.mino.get_size()
         self.hold_mino: Mino = EmptyMino()
@@ -737,7 +741,7 @@ class Tetris:
         self.current_mino_size = self.current_mino.mino.get_size()
         if self.current_mino_pile.is_empty():
             self.current_mino_pile = self.next_mino_pile
-            self.next_mino_pile = MinoPile()
+            self.next_mino_pile = MinoPile(self.random_generator)
     def is_bottom(self) -> bool:
         position_x = self.current_mino.position.x
         position_y = self.current_mino.position.y
