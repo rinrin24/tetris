@@ -1,8 +1,11 @@
 import copy
 import pyxel
 from dataclasses import dataclass, field
-from typing import ClassVar
-from main import Tetris, Position, EmptyMino, Block
+from typing import ClassVar, Type
+
+import collections.abc as cabc
+import contextlib
+import sys
 
 @dataclass(frozen=True, slots=True)
 class DropTimer:
@@ -27,10 +30,18 @@ class DropDelay:
 
 class App:
     NEXT_NUMBER: ClassVar[int] = 5
-    def __init__(self): # 初期化
+    def __init__(self,
+                 tetris_class: Type['Tetris'], 
+                 position_class: Type['Position'],
+                 empty_mino_class: Type['EmptyMino'], 
+                 block_class: Type['Block']
+                 ): # 初期化
         pyxel.init(480, 360, fps=60)
         pyxel.load('my_resource.pyxres')
-        self.tetris = Tetris()
+        self.tetris = tetris_class()
+        self.Position = position_class
+        self.EmptyMino = empty_mino_class
+        self.Block = block_class
         self.tetris.make_mino()
         self.speed = DropTimer.DEFAULT_DROP_SPEED
         self.drop_timer = DropTimer(_speed=self.speed)
@@ -82,15 +93,15 @@ class App:
         for y, column in enumerate(self.tetris.main_field.grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    current_position = Position(x, y)
-                    if (current_position == Position(3, 20) or
-                           current_position == Position(4, 20) or
-                           current_position == Position(5, 20) or
-                           current_position == Position(6, 20) or
-                           current_position == Position(3, 21) or
-                           current_position == Position(4, 21) or
-                           current_position == Position(5, 21) or
-                           current_position == Position(6, 21)
+                    current_position = self.Position(x, y)
+                    if (current_position == self.Position(3, 20) or
+                           current_position == self.Position(4, 20) or
+                           current_position == self.Position(5, 20) or
+                           current_position == self.Position(6, 20) or
+                           current_position == self.Position(3, 21) or
+                           current_position == self.Position(4, 21) or
+                           current_position == self.Position(5, 21) or
+                           current_position == self.Position(6, 21)
                            ):
                         return True
         return False
@@ -119,13 +130,13 @@ class App:
                 if not block.is_empty():
                     ghost_block_position = self.tetris.get_ghost_block()
                     new_grid.add_block(
-                        Position(ghost_block_position.x+x, ghost_block_position.y+y),
-                        Block(block._block_type+8)
+                        self.Position(ghost_block_position.x+x, ghost_block_position.y+y),
+                        self.Block(block._block_type+8)
                         )
         for y, column in enumerate(mino_grid):
             for x, block in enumerate(column):
                 if not block.is_empty():
-                    new_grid.add_block(Position(mino_position_x+x, mino_position_y+y), block)
+                    new_grid.add_block(self.Position(mino_position_x+x, mino_position_y+y), block)
         for y, column in enumerate(reversed(new_grid.grid)):
             for x, block in enumerate(column):
                 if block.is_empty() and y <= 19:
@@ -165,7 +176,7 @@ class App:
     def draw_hold(self):
         grid_position = {'x': 80, 'y': 32,}
         hold_mino = self.tetris.hold_mino
-        if hold_mino == EmptyMino():
+        if hold_mino == self.EmptyMino():
             return
         for y, column in enumerate(reversed(hold_mino.get_grid().grid)):
             for x, block in enumerate(column):
@@ -181,4 +192,29 @@ class App:
                         16
                         )
 
-App()
+@contextlib.contextmanager
+def print_exception() -> cabc.Iterator[None]:
+    try:
+        yield
+    except Exception as error:
+        print("Exception passthrough:", error)
+        raise
+
+def preload() -> None:
+    module_paths = ("main.py", '')
+    for path in module_paths:
+        if path == '': break
+        with open(path):  # pylint: disable=unspecified-encoding
+            pass
+
+@print_exception()
+def main() -> int:
+    preload()
+    from main import Tetris, Position, EmptyMino, Block
+
+    App(Tetris, Position, EmptyMino, Block)
+
+    return  0
+
+if __name__ == "__main__":
+    sys.exit(main())
