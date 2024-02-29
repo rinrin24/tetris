@@ -50,10 +50,10 @@ class App:
 
     def update(self): # フレームの更新処理
         if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=2):
-            if self.tetris.move_right():
+            if self.tetris.move_right() and self.tetris.is_bottom():
                 self.reset_time()
         if pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.KEY_LEFT, hold=12, repeat=2):
-            if self.tetris.move_left():
+            if self.tetris.move_left() and self.tetris.is_bottom():
                 self.reset_time()
         if pyxel.btnp(pyxel.KEY_DOWN, hold=1, repeat=5):
             if self.tetris.move_down():
