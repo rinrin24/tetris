@@ -65,6 +65,9 @@ class RelativePosition:
     x: int
     y: int
 
+class InvalidDirectionException(Exception):
+    pass
+
 @dataclass(frozen=True, slots=True, eq=True)
 class Direction:
     """the direction of mino
@@ -90,7 +93,7 @@ class Direction:
     @classmethod
     def D(cls) -> 'Direction':
         return cls(Direction._NUMBER_D)
-    def rotate_left(self):
+    def rotate_left(self) -> 'Direction':
         if self == Direction.A():
             return Direction.D()
         if self == Direction.B():
@@ -99,7 +102,8 @@ class Direction:
             return Direction.B()
         if self == Direction.D():
             return Direction.C()
-    def rotate_right(self):
+        raise InvalidDirectionException()
+    def rotate_right(self) -> 'Direction':
         if self == Direction.A():
             return Direction.B()
         if self == Direction.B():
@@ -108,6 +112,7 @@ class Direction:
             return Direction.D()
         if self == Direction.D():
             return Direction.A()
+        raise InvalidDirectionException()
 
 @dataclass(frozen=True, slots=True, eq=True)
 class SuperRotationStep:
@@ -125,7 +130,7 @@ class Grid:
     def __init__(self, size: Size) -> None:
         self.size_x: int = size.x
         self.size_y: int = size.y
-        self.grid = [[ Block.EMPTY() for i in range(size.x)] for j in range(size.y)]
+        self.grid: list[list[Block]] = [[ Block.EMPTY() for i in range(size.x)] for j in range(size.y)]
     def is_empty(self, position: Position) -> bool:
         return self.grid[position.y][position.x].is_empty()
     def add_block(self, position: Position, block: Block) -> None:
