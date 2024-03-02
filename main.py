@@ -192,6 +192,9 @@ class Mino(metaclass=ABCMeta):
                      current_relative_position: RelativePosition
                     ) -> RelativePosition:
         raise NotImplementedError()
+    @abstractmethod
+    def get_default_mino(self) -> 'Mino':
+        raise NotImplementedError()
 
 class Mino3x3:
     def rotate_right(self, current_shape: Grid, block_type: Block) -> Grid:
@@ -384,6 +387,8 @@ class IMino(Mino):
                 if not is_right_rotation:
                     return RelativePosition(1, -2)
         return RelativePosition(0, 0)
+    def get_default_mino(self) -> 'IMino':
+        return IMino()
 
 class OMino(Mino):
     BLOCK_TYPE: Block = Block(2)
@@ -412,6 +417,8 @@ class OMino(Mino):
             current_relative_position: RelativePosition
         ) -> RelativePosition:
         return RelativePosition(0, 0)
+    def get_default_mino(self) -> 'OMino':
+        return OMino()
 
 class SMino(Mino):
     BLOCK_TYPE: Block = Block(3)
@@ -449,6 +456,8 @@ class SMino(Mino):
                 current_step,
                 current_relative_position
             )
+    def get_default_mino(self) -> 'SMino':
+        return SMino()
 
 class ZMino(Mino):
     BLOCK_TYPE = Block(4)
@@ -486,6 +495,8 @@ class ZMino(Mino):
                 current_step,
                 current_relative_position
             )
+    def get_default_mino(self) -> 'ZMino':
+        return ZMino()
 
 class JMino(Mino):
     BLOCK_TYPE: Block = Block(5)
@@ -523,6 +534,8 @@ class JMino(Mino):
                 current_step,
                 current_relative_position
             )
+    def get_default_mino(self) -> 'JMino':
+        return JMino()
 
 class LMino(Mino):
     BLOCK_TYPE: Block = Block(6)
@@ -560,6 +573,8 @@ class LMino(Mino):
                 current_step,
                 current_relative_position
             )
+    def get_default_mino(self) -> 'LMino':
+        return LMino()
 
 class TMino(Mino):
     BLOCK_TYPE: Block = Block(7)
@@ -597,6 +612,8 @@ class TMino(Mino):
                 current_step,
                 current_relative_position
             )
+    def get_default_mino(self) -> 'TMino':
+        return TMino()
 
 class EmptyMino(Mino):
     def __init__(self) -> None:
@@ -624,6 +641,8 @@ class EmptyMino(Mino):
         if __value is None or not isinstance(__value, EmptyMino):
             return False
         return True
+    def get_default_mino(self) -> 'EmptyMino':
+        return EmptyMino()
 
 @dataclass(slots=True)
 class CurrentMino:
@@ -839,13 +858,13 @@ class Tetris:
         return self.place_mino()
     def hold(self) -> None:
         if self.hold_mino == EmptyMino():
-            self.hold_mino = self.current_mino.mino
+            self.hold_mino = self.current_mino.mino.get_default_mino()
             self.make_mino()
             return
         current_mino = self.current_mino.mino
         self.current_mino = CurrentMino(self.hold_mino)
         self.current_mino_size = self.current_mino.mino.get_size()
-        self.hold_mino = current_mino
+        self.hold_mino = current_mino.get_default_mino()
     def get_ghost_block(self) -> Position:
         current_position = self.current_mino.position
         position = current_position
