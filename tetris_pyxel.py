@@ -25,15 +25,24 @@ class DropDelay:
     MAX_COUNT: ClassVar[int] = 8
     timer: int = field(default=0)
     reset_count: int = field(default=0)
+    need_next: bool = field(default=False)
     def should_place(self) -> bool:
-        return (self.timer >= DropDelay.MAX_TIME) or (self.reset_count >= DropDelay.MAX_COUNT)
+        return ((self.timer >= DropDelay.MAX_TIME) and not self.need_next) or (self.reset_count >= DropDelay.MAX_COUNT)
+    def add_delay(self) -> 'DropDelay':
+        return DropDelay(self.timer+1, self.reset_count, self.need_next)
+    def is_max_time(self) -> bool:
+        return self.timer >= DropDelay.MAX_TIME
+    def reset_delay(self) -> 'DropDelay':
+        if not self.is_max_time():
+            return DropDelay(self.timer, self.reset_count, True)
+        return DropDelay(0, self.reset_count + 1)
 
 class App:
     NEXT_NUMBER: ClassVar[int] = 5
     def __init__(self,
-                 tetris_class: Type['Tetris'], 
+                 tetris_class: Type['Tetris'],
                  position_class: Type['Position'],
-                 empty_mino_class: Type['EmptyMino'], 
+                 empty_mino_class: Type['EmptyMino'],
                  block_class: Type['Block']
                  ): # 初期化
         pyxel.init(480, 360, fps=60)
@@ -51,44 +60,51 @@ class App:
     def update(self): # フレームの更新処理
         if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=2):
             if self.tetris.move_right() and self.tetris.is_bottom():
-                self.reset_time()
+                self.reset_drop_timer()
+                self.delay = self.delay.reset_delay()
         if pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.KEY_LEFT, hold=12, repeat=2):
             if self.tetris.move_left() and self.tetris.is_bottom():
-                self.reset_time()
+                self.reset_drop_timer()
+                self.delay = self.delay.reset_delay()
         if pyxel.btnp(pyxel.KEY_DOWN, hold=1, repeat=5):
             if self.tetris.move_down():
-                self.reset_time()
+                self.reset_drop_timer()
         if pyxel.btnp(pyxel.KEY_Z):
-            if self.tetris.rotate_left():
-                self.reset_time()
+            if self.tetris.rotate_left() and self.tetris.is_bottom():
+                self.reset_drop_timer()
+                self.delay = self.delay.reset_delay()
         if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.KEY_UP):
-            if self.tetris.rotate_right():
-                self.reset_time()
+            if self.tetris.rotate_right() and self.tetris.is_bottom():
+                self.reset_drop_timer()
+                self.delay = self.delay.reset_delay()
         if pyxel.btnp(pyxel.KEY_C):
             self.tetris.hold()
         if pyxel.btnp(pyxel.KEY_SPACE):
             self.tetris.hard_drop()
             self.drop_timer = DropTimer(_speed=self.speed)
+            self.delay = DropDelay()
         self.drop()
 
     def drop(self):
-        if self.tetris.is_bottom():
+        # drop mino
+        if not self.tetris.is_bottom():
+            if self.drop_timer.should_drop():
+                self.tetris.move_down()
+                self.reset_drop_timer()
+            else:
+                self.drop_timer = DropTimer(self.drop_timer.timer + 1, self.speed)
+        # place mino
+        else:
             if self.delay.should_place():
                 self.tetris.place_mino()
-                self.drop_timer = DropTimer(_speed=self.speed)
+                self.reset_drop_timer()
                 self.delay = DropDelay()
+            # add delay timer
             else:
-                self.delay = DropDelay(timer=self.delay.timer+1, reset_count=self.delay.reset_count)
-        if not self.tetris.is_bottom():
-            if self.delay.timer > 0:
-                self.delay = DropDelay(reset_count=self.delay.reset_count+1)
-                self.drop_timer = DropTimer(_speed=self.speed)
-        if self.drop_timer.should_drop():
-            self.drop_timer = DropTimer(_speed=self.speed)
-            if not self.tetris.is_bottom():
-                self.tetris.move_down()
-        else:
-            self.drop_timer = DropTimer(self.drop_timer.timer+1, self.speed)
+                if self.delay.is_max_time():
+                    self.delay = self.delay.reset_delay()
+                    return
+                self.delay = self.delay.add_delay()
     def is_game_over(self) -> bool:
         for y, column in enumerate(self.tetris.main_field.grid):
             for x, block in enumerate(column):
@@ -105,18 +121,19 @@ class App:
                            ):
                         return True
         return False
-    def reset_time(self) -> None:
+    def reset_drop_timer(self) -> None:
         self.drop_timer = DropTimer(_speed=self.speed)
-        if self.tetris.is_bottom():
-            self.delay = DropDelay(reset_count=self.delay.reset_count+1)
     def draw(self): # 描画処理
         pyxel.cls(0)
-        pyxel.blt(10, 10, 0, 0, 0, 16, 16)
+        # pyxel.blt(10, 10, 0, 0, 0, 16, 16)
         self.draw_main_field()
         self.draw_next()
         self.draw_hold()
         pyxel.text(0, 0, f'{self.drop_timer.timer}/{self.drop_timer.drop_period}, {self.drop_timer.should_drop()}', 7)
         pyxel.text(0, 20, f'{self.delay.timer}, {self.delay.reset_count}, {self.delay.should_place()}', 7)
+        pyxel.text(0, 40, f'{self.delay}', 7)
+        pyxel.text(0, 60, f'self.tetris.is_bottom(): {self.tetris.is_bottom()}', 7)
+        pyxel.text(0, 80, f'self.delay.should_place(): {self.delay.should_place()}', 7)
 
     def draw_main_field(self):
         grid_position = {'x': 160, 'y': 16,}
