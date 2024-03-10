@@ -14,9 +14,9 @@ class DropTimer:
     drop_period: int = field(init=False, default_factory=int)
     timer: int = field(default=0)
     _speed: int = field(default=DEFAULT_DROP_SPEED)
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "drop_period", DropTimer.DEFAULT_DROP_PERIOD/self._speed)
-    def should_drop(self):
+    def should_drop(self) -> bool:
         return self.timer >= self.drop_period
 
 @dataclass(frozen=True)
@@ -57,7 +57,7 @@ class App:
         self.delay = DropDelay()
         pyxel.run(self.update, self.draw) # アプリケーションの実行
 
-    def update(self): # フレームの更新処理
+    def update(self) -> None: # フレームの更新処理
         if pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.KEY_RIGHT, hold=12, repeat=2):
             if self.tetris.move_right() and self.tetris.is_bottom():
                 self.reset_drop_timer()
@@ -85,7 +85,7 @@ class App:
             self.delay = DropDelay()
         self.drop()
 
-    def drop(self):
+    def drop(self) -> None:
         # drop mino
         if not self.tetris.is_bottom():
             if self.drop_timer.should_drop():
@@ -123,7 +123,7 @@ class App:
         return False
     def reset_drop_timer(self) -> None:
         self.drop_timer = DropTimer(_speed=self.speed)
-    def draw(self): # 描画処理
+    def draw(self) -> None: # 描画処理
         pyxel.cls(0)
         # pyxel.blt(10, 10, 0, 0, 0, 16, 16)
         self.draw_main_field()
@@ -135,7 +135,7 @@ class App:
         pyxel.text(0, 60, f'self.tetris.is_bottom(): {self.tetris.is_bottom()}', 7)
         pyxel.text(0, 80, f'self.delay.should_place(): {self.delay.should_place()}', 7)
 
-    def draw_main_field(self):
+    def draw_main_field(self) -> None:
         grid_position = {'x': 160, 'y': 16,}
         new_grid = copy.deepcopy(self.tetris.main_field)
         mino_position_x = self.tetris.current_mino.position.x
@@ -168,7 +168,7 @@ class App:
                     16,
                     16
                     )
-    def draw_next(self):
+    def draw_next(self) -> None:
         grid_position = {'x': 340, 'y': 100,}
         grid_margin_size = {'x': 0, 'y': 5}
         next_minos = self.tetris.current_mino_pile.pile + self.tetris.next_mino_pile.pile
@@ -190,7 +190,7 @@ class App:
                             16,
                             16
                             )
-    def draw_hold(self):
+    def draw_hold(self) -> None:
         grid_position = {'x': 80, 'y': 32,}
         hold_mino = self.tetris.hold_mino
         if hold_mino == self.EmptyMino():
